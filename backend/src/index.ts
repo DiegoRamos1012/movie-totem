@@ -9,7 +9,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middlewares nativos do Express 5
 app.use(express.json()); // para requisições com JSON
 app.use(express.urlencoded({ extended: true })); // para formulários
 
