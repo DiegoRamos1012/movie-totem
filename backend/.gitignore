@@ -1,0 +1,52 @@
+# Node
+\node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+# Note: pnpm-lock.yaml should be committed to ensure consistent dependencies
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+logs/*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.sqlite
+*.db
+*.db-journal
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# TypeORM
+ormconfig.json
+migrations/
+temp/
