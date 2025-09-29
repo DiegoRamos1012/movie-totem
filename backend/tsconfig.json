@@ -1,9 +1,9 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "experimentalDecorators": true, // Permite decorators @
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false, // Desativa a regra de exigir valores iniciais na propriedade
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module

@@ -7,11 +7,16 @@ export const AppDataSource = new DataSource({
     username: "postgres",
     password: "",
     database: "ProjetoCinema",
+    logging: true,
+    entities: [
+        "src/models/**/*.{ts,js}"
+    ]
 })
 
-try {
-    await AppDataSource.initialize()
-    console.log("Data Source has been initialized!")
-} catch (error) {
-    console.error("Error during Data Source initialization", error)
-}
+AppDataSource.initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((error) => {
+    console.error("Error during Data Source initialization", error);
+  });
