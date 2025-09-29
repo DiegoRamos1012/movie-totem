@@ -8,7 +8,7 @@ export enum MovieRating {
   DEZESSEIS = 16,
   DEZOITO = 18,
 }
-
+  
 @Entity()
 export class Movies {
   @PrimaryGeneratedColumn()
