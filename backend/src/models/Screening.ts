@@ -5,7 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { Movies } from "./Movie.js";
+import { Movie } from "./Movie.js";
 import { Theater } from "./Theater.js";
 
 @Entity()
@@ -32,9 +32,9 @@ export class Screening {
   active: boolean; // ← ADICIONAR status ativo/cancelado
 
   // Relacionamento com Movie
-  @ManyToOne(() => Movies)
+  @ManyToOne(() => Movie)
   @JoinColumn({ name: "movie_id" })
-  movie: Movies;
+  movie: Movie;
 
   // Relacionamento com Theater
   @ManyToOne(() => Theater)

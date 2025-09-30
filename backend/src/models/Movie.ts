@@ -10,7 +10,7 @@ export enum MovieRating {
 }
   
 @Entity()
-export class Movies {
+export class Movie {
   @PrimaryGeneratedColumn()
   id: number;
 
