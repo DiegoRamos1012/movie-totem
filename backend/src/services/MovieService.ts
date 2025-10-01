@@ -2,13 +2,22 @@ import { AppDataSource } from "../config/database.js";
 import { Movie } from "../models/Movie.js";
 
 export class MovieService {
-  update(id: number, body: any) {
-    throw new Error("Method not implemented.");
-  }
   private movieRepository = AppDataSource.getRepository(Movie);
 
-  async findAll() {
-    return await this.movieRepository.find();
+  async findAll(): Promise<Movie[]> {
+    return await this.movieRepository.find({
+      where: { active: true }, // Só filmes ativos
+      order: { id: "DESC" }, // Mais recentes primeiro
+      select: [
+        "id",
+        "name",
+        "originalName",
+        "genre",
+        "synopsis",
+        "duration",
+        "posterUrl",
+      ], // Só campos necessários
+    });
   }
 
   async create(movieData: Partial<Movie>) {
@@ -16,7 +25,7 @@ export class MovieService {
     return await this.movieRepository.save(movie);
   }
 
-  async deleteMovie(id: number): Promise<void> {
+  async deleteMovie(id: number) {
     const movie = await this.movieRepository.findOneBy({ id });
     if (!movie) {
       throw new Error("Movie not found");
@@ -24,12 +33,13 @@ export class MovieService {
     await this.movieRepository.remove(movie);
   }
 
-  async updateMovie(id: number, movieData: Partial<Movie>) { // recebe como parâmetros o id do filme e atributos opcionais do Filme
-    const movie = await this.movieRepository.findOneBy({ id }); // Através do ID, ele busca o filme atrelado a ele
-    if (!movie) {
-      throw new Error(`Movie with ID ${id} not found`);
+  async updateMovie(id: number, movieData: Partial<Movie>) {
+    const result = await this.movieRepository.update(id, movieData);
+
+    if (result.affected === 0) {
+      return null;
     }
-    const updatedMovie = this.movieRepository.merge(movie, movieData); // Mescla os novos dados com os antigos
-    return await this.movieRepository.save(updatedMovie); // Recebe os dados mesclados pra atualizar o filme
+
+    return await this.movieRepository.findOne({ where: { id } });
   }
 }
