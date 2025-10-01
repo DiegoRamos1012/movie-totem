@@ -1,12 +1,11 @@
+import "reflect-metadata";
 import {
-  Entity,
   Column,
+  Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { Movie } from "./Movie.js";
-import { Theater } from "./Theater.js";
 
 @Entity()
 export class Screening {
@@ -19,25 +18,17 @@ export class Screening {
   @Column({ name: "theater_id", type: "int" })
   theaterId: number;
 
-  @Column({ name: "screening_time", type: "timestamp" })
-  screeningTime: Date;
+  @Column({ name: "start_time", type: "timestamp" })
+  startTime: Date;
 
-  @Column({ name: "available_seats", type: "int" })
-  availableSeats: number;
+  @Column({ type: "decimal", precision: 10, scale: 2 })
+  price: number;
 
-  @Column({ type: "numeric", precision: 10, scale: 2 })
-  ticketPrice: number;
-
-  @Column({ type: "boolean", default: true })
-  active: boolean;
-
-  // Relacionamento com Movie
-  @ManyToOne(() => Movie)
+  @ManyToOne("Movie")
   @JoinColumn({ name: "movie_id" })
-  movie: Movie;
+  movie: any;
 
-  // Relacionamento com Theater
-  @ManyToOne(() => Theater)
+  @ManyToOne("Theater")
   @JoinColumn({ name: "theater_id" })
-  theater: Theater;
+  theater: any;
 }

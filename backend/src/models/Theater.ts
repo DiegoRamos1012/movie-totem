@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Seat } from "./Seat.js";
+import "reflect-metadata";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 
 @Entity()
 export class Theater {
@@ -7,11 +7,15 @@ export class Theater {
   id: number;
 
   @Column({ type: "varchar", length: 100 })
-  name: string; // nome da sala
+  name: string;
 
   @Column({ type: "int" })
-  capacity: number; // total seats
+  capacity: number;
 
-  @OneToMany(() => Seat, (seat) => seat.theater)
-  seats: Seat[];
+  @Column({ type: "boolean", default: true })
+  active: boolean;
+
+  // Use string reference
+  @OneToMany("Seat", "theater")
+  seats: any[];
 }
