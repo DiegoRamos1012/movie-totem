@@ -9,11 +9,11 @@ export class MovieController {
     try {
       const movies = await movieService.findAll();
       return res.status(200).json(movies);
-    } catch (err: any) {
-      console.error("Error fetching movies:", err);
+    } catch (error: any) {
+      console.error("Error fetching movies:", error);
       return res.status(500).json({
         message: "Error fetching movies",
-        error: err.message,
+        error: error.message,
       });
     }
   }
