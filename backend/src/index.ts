@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import movieRoutes from "./routes/movieRoutes.js";
+import { AppDataSource } from "./config/database.js";
 
 // Carrega as variáveis do arquivo .env
 dotenv.config();
@@ -23,16 +24,32 @@ app.get("/health", (req, res) => {
   res.json({
     status: "OK",
     message: "Rota teste para verificar funcionamento do servidor",
+    database: AppDataSource.isInitialized ? "Conectado" : "Desconectado",
   });
 });
 
 // Inicia o servidor
-app.listen(PORT, () => {
-  console.log("=".repeat(50));
-  console.log(chalk.bold("🎞️  Backend do ProjetoCinema"));
-  console.log("=".repeat(50));
-  console.log(chalk.green("🚀 Servidor rodando em http://localhost:4000"));
-  console.log(chalk.blue("📋 Versão do Express: 4.19.2 (LTS)"));
-  console.log(chalk.yellow("🎬 Versão do Node: 24.2.0"));
-  console.log("=".repeat(50));
-});
+AppDataSource.initialize()
+  .then(() => {
+    console.log("=".repeat(50));
+    console.log(chalk.green("✅ Banco de dados conectado!"));
+
+    app.listen(PORT, () => {
+      console.log("=".repeat(50));
+      console.log(chalk.bold("🎞️  Backend do ProjetoCinema"));
+      console.log(chalk.green(`🚀 Servidor: http://localhost:${PORT}`));
+      console.log(chalk.blue("📋 Express: 4.19.2 (LTS)"));
+      console.log(chalk.yellow(`🗄️  Database: ${process.env.DB_NAME}`));
+      console.log(
+        chalk.cyan(
+          `🔗 Status da conexão: ${
+            AppDataSource.isInitialized ? "✅ CONECTADO" : "❌ DESCONECTADO"
+          }`
+        )
+      );
+      console.log("=".repeat(50));
+    });
+  })
+  .catch((error) => {
+    console.error(chalk.red("❌ Erro ao conectar com banco:"), error);
+  });

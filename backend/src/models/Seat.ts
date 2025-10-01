@@ -13,25 +13,29 @@ export class Seat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 2 })
+  @Column({ type: "varchar", length: 2 })
   row: string; // ex: "A", "B", "M"
 
-  @Column()
+  @Column({ type: "int" })
   number: number; // ex: 1, 2, 6
 
-  @Column({ length: 5 })
+  @Column({ type: "varchar", length: 5 })
   code: string; // row + number, ex: "M6"
 
-  @Column({ default: false })
+  @Column({ type: "boolean", default: false })
   occupied: boolean;
 
-  @ManyToOne(() => Theater, (theater) => theater.seats)
-  theater: Theater;
+  @Column({ name: "theater_id", type: "int" })
+  theaterId: number;
 
-  @Column({ name: "screening_id", nullable: true })
-  screeningId: number; // ← ADICIONAR para reservas por sessão
+  @Column({ name: "screening_id", type: "int", nullable: true })
+  screeningId: number;
+
+  @ManyToOne(() => Theater, (theater) => theater.seats)
+  @JoinColumn({ name: "theater_id" })
+  theater: Theater;
 
   @ManyToOne(() => Screening)
   @JoinColumn({ name: "screening_id" })
-  screening: Screening; // ← RELACIONAMENTO com sessão
+  screening: Screening;
 }

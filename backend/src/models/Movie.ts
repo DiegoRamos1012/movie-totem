@@ -8,31 +8,31 @@ export enum MovieRating {
   DEZESSEIS = 16,
   DEZOITO = 18,
 }
-  
+
 @Entity()
 export class Movie {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 200 })
+  @Column({ type: "varchar", length: 200 })
   name: string;
 
-  @Column({ name: "original_name", length: 200 })
+  @Column({ name: "original_name", type: "varchar", length: 200 })
   originalName: string;
 
-  @Column("text")
+  @Column({ type: "text" })
   casting: string;
 
-  @Column({ length: 200 })
+  @Column({ type: "varchar", length: 200 })
   direction: string;
 
-  @Column("text")
+  @Column({ type: "text" })
   synopsis: string;
 
-  @Column({ length: 50 })
+  @Column({ type: "varchar", length: 50 })
   genre: string;
 
-  @Column()
+  @Column({ type: "int" })
   duration: number;
 
   @Column({ type: "enum", enum: MovieRating })
@@ -41,9 +41,9 @@ export class Movie {
   @Column({ name: "release_date", type: "date" })
   releaseDate: Date;
 
-  @Column({ name: "poster_url", length: 500, nullable: true })
+  @Column({ name: "poster_url", type: "varchar", length: 500, nullable: true })
   posterUrl: string;
 
-  @Column({ default: true })
-  active: boolean; // ← ADICIONAR status ativo/inativo
+  @Column({ type: "boolean", default: true })
+  active: boolean;
 }

@@ -8,6 +8,10 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "typeorm": "tsx ./node_modules/typeorm/cli.js",
+    "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate -d src/config/database.ts src/migrations/InitialMigration",
+    "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d src/config/database.ts",
+    "migration:revert": "tsx ./node_modules/typeorm/cli.js migration:revert -d src/config/database.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

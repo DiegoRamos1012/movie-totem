@@ -6,10 +6,10 @@ export class Theater {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 100 })
+  @Column({ type: "varchar", length: 100 })
   name: string; // nome da sala
 
-  @Column()
+  @Column({ type: "int" })
   capacity: number; // total seats
 
   @OneToMany(() => Seat, (seat) => seat.theater)

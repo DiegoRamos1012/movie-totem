@@ -13,10 +13,10 @@ export class Ticket {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: "screening_id" })
+  @Column({ name: "screening_id", type: "int" })
   screeningId: number;
 
-  @Column({ name: "seat_id" })
+  @Column({ name: "seat_id", type: "int" })
   seatId: number;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

@@ -13,23 +13,23 @@ export class Screening {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: "movie_id" })
+  @Column({ name: "movie_id", type: "int" })
   movieId: number;
 
-  @Column({ name: "theater_id" })
+  @Column({ name: "theater_id", type: "int" })
   theaterId: number;
 
   @Column({ name: "screening_time", type: "timestamp" })
   screeningTime: Date;
 
-  @Column({ name: "available_seats" })
+  @Column({ name: "available_seats", type: "int" })
   availableSeats: number;
 
   @Column({ type: "numeric", precision: 10, scale: 2 })
-  ticketPrice: number; // ← ADICIONAR preço do ingresso
+  ticketPrice: number;
 
-  @Column({ default: true })
-  active: boolean; // ← ADICIONAR status ativo/cancelado
+  @Column({ type: "boolean", default: true })
+  active: boolean;
 
   // Relacionamento com Movie
   @ManyToOne(() => Movie)
