@@ -10,11 +10,7 @@ export class MovieController {
       const movies = await movieService.findAll();
       return res.status(200).json(movies);
     } catch (error: any) {
-      console.error("Error fetching movies:", error);
-      return res.status(500).json({
-        message: "Error fetching movies",
-        error: error.message,
-      });
+        console.error("Error fetching movies:", error);
     }
   }
 
@@ -89,11 +85,7 @@ export class MovieController {
         movie: updatedMovie,
       });
     } catch (error: any) {
-      console.error("Error updating movie:", error);
-      return res.status(500).json({
-        message: "Error updating movie",
-        error: error.message,
-      });
+        console.error("Error updating movie:", error);
     }
   }
 }
