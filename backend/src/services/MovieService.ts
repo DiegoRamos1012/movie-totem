@@ -16,7 +16,7 @@ export class MovieService {
         "synopsis",
         "duration",
         "posterUrl",
-      ], // Só campos necessários
+      ], // Só campos necessários. A otimização tornará a consulta mais leve e mais ágil
     });
   }
 
