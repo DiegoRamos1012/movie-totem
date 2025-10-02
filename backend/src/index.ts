@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import movieRoutes from "./routes/movieRoutes.js";
 import { AppDataSource } from "./config/database.js";
+import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
 
 // Carrega as variáveis do arquivo .env
 dotenv.config();
@@ -34,18 +35,27 @@ AppDataSource.initialize()
     console.log("=".repeat(50));
     console.log(chalk.green("✅ Banco de dados conectado!"));
 
+    // Instanciar jobs após conectar no banco
+    const screeningJobs = new ScreeningJobs();
+
+    // Executar job a cada 10 minutos
+    setInterval(
+      () => screeningJobs.deactivateExpiredScreenings(),
+      10 * 60 * 1000
+    );
+
+    // Executar uma vez após 30 segundos
+    setTimeout(() => screeningJobs.deactivateExpiredScreenings(), 30 * 1000);
+
     app.listen(PORT, () => {
       console.log("=".repeat(50));
       console.log(chalk.bold("🎞️  Backend do ProjetoCinema"));
       console.log(chalk.green(`🚀 Servidor: http://localhost:${PORT}`));
       console.log(chalk.blue("📋 Express: 4.19.2 (LTS)"));
       console.log(chalk.yellow(`🗄️  Database: ${process.env.DB_NAME}`));
+      console.log(chalk.cyan(`🔗 Status da conexão: CONECTADO`));
       console.log(
-        chalk.cyan(
-          `🔗 Status da conexão: ${
-            AppDataSource.isInitialized ? "✅ CONECTADO" : "❌ DESCONECTADO"
-          }`
-        )
+        chalk.magenta("🤖 Job automático: Ativo (executa a cada 5 min)")
       );
       console.log("=".repeat(50));
     });

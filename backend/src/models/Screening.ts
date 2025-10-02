@@ -6,6 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
+import { Movie } from "./Movie.js";
+import { Theater } from "./Theater.js";
 
 @Entity()
 export class Screening {
@@ -18,17 +20,24 @@ export class Screening {
   @Column({ name: "theater_id", type: "int" })
   theaterId: number;
 
-  @Column({ name: "start_time", type: "timestamp" })
-  startTime: Date;
+  @Column({ name: "screening_time", type: "timestamp" })
+  screeningTime: Date;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  price: number;
+  @Column({ name: "available_seats", type: "int" })
+  availableSeats: number;
 
-  @ManyToOne("Movie")
+  @Column({ name: "basePrice", type: "numeric", precision: 10, scale: 2 })
+  basePrice: number;
+
+  @Column({ type: "boolean", default: true })
+  active: boolean;
+
+  // Relacionamentos
+  @ManyToOne(() => Movie)
   @JoinColumn({ name: "movie_id" })
-  movie: any;
+  movie: Movie;
 
-  @ManyToOne("Theater")
+  @ManyToOne(() => Theater)
   @JoinColumn({ name: "theater_id" })
-  theater: any;
+  theater: Theater;
 }
