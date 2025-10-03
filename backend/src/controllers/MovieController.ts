@@ -10,7 +10,7 @@ export class MovieController {
       const movies = await movieService.findAll();
       return res.status(200).json(movies);
     } catch (error: any) {
-      console.error("Error fetching movies:", error);
+      console.error(`Error fetching movies: ${error}`);
     }
   }
 
@@ -26,7 +26,7 @@ export class MovieController {
       const newMovie = await movieService.create(req.body);
       return res.status(201).json(newMovie);
     } catch (error: any) {
-      console.error("Error creating movie:", error);
+      console.error(`Error creating movie ${error}`);
       return res.status(500).json({
         message: "Error creating movie",
         error: error.message,
@@ -52,7 +52,7 @@ export class MovieController {
 
       return res.status(200).json({ message: "Movie deleted successfully" });
     } catch (error: any) {
-      console.error("Error deleting movie:", error);
+      console.error(`Error deleting movie: ${error}`);
       return res.status(500).json({
         message: "Error deleting movie",
         error: error.message,
@@ -85,7 +85,7 @@ export class MovieController {
         movie: updatedMovie,
       });
     } catch (error: any) {
-      console.error("Error updating movie:", error);
+      console.error(`Error updating movie: ${error}`);
     }
   }
 }
