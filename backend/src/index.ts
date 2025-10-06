@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import movieRoutes from "./routes/movieRoutes.js";
+import screeningRoutes from "./routes/screeningRoutes.js";
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
 
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json()); // para requisições com JSON
 app.use(express.urlencoded({ extended: true })); // para formulários
 app.use("/movies", movieRoutes);
+app.use("/screenings", screeningRoutes);
 
 // Rota de teste
 app.get("/health", (req, res) => {

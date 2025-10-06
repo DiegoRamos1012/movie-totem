@@ -16,7 +16,6 @@ export class MovieController {
 
   static async addMovie(req: Request, res: Response) {
     try {
-      // Validação básica
       if (!req.body.name || !req.body.duration) {
         return res.status(400).json({
           message: "Name and duration are required",
