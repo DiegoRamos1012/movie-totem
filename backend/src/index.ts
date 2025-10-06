@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import movieRoutes from "./routes/movieRoutes.js";
 import screeningRoutes from "./routes/screeningRoutes.js";
+import theaterRoutes from "./routes/theaterRoutes.js";
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
 
@@ -17,6 +18,10 @@ app.use(express.json()); // para requisições com JSON
 app.use(express.urlencoded({ extended: true })); // para formulários
 app.use("/movies", movieRoutes);
 app.use("/screenings", screeningRoutes);
+app.use("/theaters", theaterRoutes);
+// app.use("/seats", seatRoutes);
+// app.use("/ticket", ticketRoutes);
+// app.use("/snacks", snackRoutes); 
 
 // Rota de teste
 app.get("/health", (req, res) => {
