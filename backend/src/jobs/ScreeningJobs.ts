@@ -22,8 +22,8 @@ export class ScreeningJobs {
       } else {
         console.log(chalk.green("✅ Nenhuma sessão foi desativada"));
       }
-    } catch (error) {
-      console.error(chalk.red("❌ Erro no job de desativação:"), error);
+    } catch (error) { 
+      console.error(chalk.red(`❌ Erro no job de desativação: ${error}`));
     }
   }
 }
