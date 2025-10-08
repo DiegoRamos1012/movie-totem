@@ -28,17 +28,24 @@ export class TheaterService {
     return await this.theaterRepository.save(theater);
   }
 
-  async desactivate(id: number): Promise<boolean> {
-    const result = await this.theaterRepository.update(id, { active: false });
-    return result.affected !== 0;
+  async desactivate(id: number): Promise<Theater> {
+    const theater = await this.theaterRepository.findOneBy({ id });
+    if (!theater) {
+      throw new Error("Theater not found");
+    }
+    await this.theaterRepository.update(id, { active: false });
+    const updatedTheater = await this.theaterRepository.findOneBy({ id });
+    return updatedTheater!;
   }
 
-  // Update apenas name, capacity e active - retorna boolean
-  async update(
-    id: number,
-    theaterData: Partial<Theater>
-  ): Promise<boolean> {
-    const result = await this.theaterRepository.update(id, theaterData);
-    return result.affected !== 0;
+  // Update apenas name, capacity e active - retorna o theater atualizado
+  async update(id: number, theaterData: Partial<Theater>): Promise<Theater> {
+    const theater = await this.theaterRepository.findOneBy({ id });
+    if (!theater) {
+      throw new Error("Theater not found");
+    }
+    await this.theaterRepository.update(id, theaterData);
+    const updatedTheater = await this.theaterRepository.findOneBy({ id });
+    return updatedTheater!;
   }
 }

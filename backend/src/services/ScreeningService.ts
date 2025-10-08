@@ -1,4 +1,3 @@
-
 import { AppDataSource } from "../config/database.js";
 import { Screening } from "../models/Screening.js";
 import { Between, LessThan } from "typeorm";
@@ -38,9 +37,17 @@ export class ScreeningService {
   async updateScreening(
     id: number,
     data: Partial<Screening>
-  ): Promise<boolean> {
-    const result = await this.screeningRepository.update(id, data);
-    return result.affected !== 0;
+  ): Promise<Screening> {
+    const screening = await this.screeningRepository.findOneBy({ id });
+    if (!screening) {
+      throw new Error("Screening not found");
+    }
+    await this.screeningRepository.update(id, data);
+    const updatedScreening = await this.screeningRepository.findOne({
+      where: { id },
+      relations: ["movie", "theater"],
+    });
+    return updatedScreening!;
   }
 
   /* Busca uma sessão específica por ID */

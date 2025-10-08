@@ -25,16 +25,22 @@ export class MovieService {
     return await this.movieRepository.save(movie);
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<Movie> {
     const movie = await this.movieRepository.findOneBy({ id });
     if (!movie) {
       throw new Error("Movie not found");
     }
     await this.movieRepository.remove(movie);
+    return movie;
   }
 
-  async update(id: number, movieData: Partial<Movie>): Promise<boolean> {
-    const result = await this.movieRepository.update(id, movieData);
-    return result.affected !== 0;
+  async update(id: number, movieData: Partial<Movie>): Promise<Movie> {
+    const movie = await this.movieRepository.findOneBy({ id });
+    if (!movie) {
+      throw new Error("Movie not found");
+    }
+    await this.movieRepository.update(id, movieData);
+    const updatedMovie = await this.movieRepository.findOneBy({ id });
+    return updatedMovie!;
   }
 }
