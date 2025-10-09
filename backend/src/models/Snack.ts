@@ -32,9 +32,6 @@ export class Snack {
   @Column({ type: "varchar", length: 200, nullable: true })
   imageUrl: string;
 
-  @Column({ type: "int", default: 0 })
-  calories: number;
-
   @Column({ type: "text", nullable: true })
   ingredients: string;
 
