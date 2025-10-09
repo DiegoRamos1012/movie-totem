@@ -9,13 +9,6 @@ export enum SnackCategory {
   OUTROS = "outros", // Outros itens especiais
 }
 
-export enum SnackSize {
-  PEQUENO = "pequeno",
-  MEDIO = "medio",
-  GRANDE = "grande",
-  BALDE = "balde",
-}
-
 @Entity()
 export class Snack {
   @PrimaryGeneratedColumn()
@@ -30,8 +23,8 @@ export class Snack {
   @Column({ type: "enum", enum: SnackCategory })
   category: SnackCategory;
 
-  @Column({ type: "enum", enum: SnackSize, nullable: true })
-  size: SnackSize;
+  @Column({ type: "varchar", length: 50, nullable: true })
+  size: string;
 
   @Column({ type: "numeric", precision: 10, scale: 2 })
   price: number;

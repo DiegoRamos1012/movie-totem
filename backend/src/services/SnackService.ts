@@ -7,8 +7,24 @@ export class SnackService {
   /* Lista todos os snacks disponíveis */
   async findAll(): Promise<Snack[]> {
     return await this.snackRepository.find({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        category: true,
+        size: true,
+        price: true,
+        imageUrl: true,
+        calories: true,
+        ingredients: true,
+        allergens: true,
+        isCombo: true,
+        comboItems: true,
+        discountPercentage: true,
+        available: true,
+      },
       where: { active: true, available: true },
-      order: { category: "ASC", name: "ASC" },
+      order: { category: "ASC" },
     });
   }
 
@@ -86,6 +102,48 @@ export class SnackService {
       console.log(
         `📦 Estoque atualizado: ${snack.name} (ID: ${id}) - ${quantity} unidades (${status})`
       );
+      return true;
+    }
+
+    return false;
+  }
+
+  async purchaseSnack(id: number, quantity: number): Promise<boolean> {
+    const snack = await this.findById(id);
+
+    // 1 - Busca o item
+    if (!snack) {
+      console.log(`⚠️ Tentativa de comprar snack inexistente (ID: ${id})`);
+      return false;
+    }
+    // 2 - Verifica se o item existe (null/undefined)
+    if (!snack.active || !snack.available) {
+      console.log(
+        `⚠️ Snack indisponível para compra: ${snack.name} (ID: ${id})`
+      );
+      return false;
+    }
+
+    // 3 - Agora o TypeScript sabe que o item não é null, então pode acessar snack.active e snack.available
+    if (snack.stockQuantity < quantity) {
+      console.log(
+        `⚠️ Estoque insuficiente: ${snack.name} (Disponível: ${snack.stockQuantity}, Solicitado: ${quantity})`
+      );
+      return false;
+    }
+
+    const newQuantity = snack.stockQuantity - quantity;
+
+    const result = await this.snackRepository.update(id, {
+      stockQuantity: newQuantity,
+      available: newQuantity > 0,
+    });
+
+    if (result.affected !== 0) {
+      const status = newQuantity > 0 ? "disponível" : "ESGOTADO";
+      console.log(`🛒 Compra processada: ${snack.name} (ID: ${id})`);
+      console.log(`   └─ Quantidade comprada: ${quantity}`);
+      console.log(`   └─ Estoque restante: ${newQuantity} (${status})`);
       return true;
     }
 

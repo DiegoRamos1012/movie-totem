@@ -139,3 +139,38 @@ export const updateSnackStock = async (req: Request, res: Response) => {
     });
   }
 };
+
+/* Processa compra de snack */
+export const purchaseSnack = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || "");
+    const { quantity } = req.body;
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: "Invalid snack ID" });
+    }
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ message: "Invalid quantity value" });
+    }
+
+    const purchased = await snackService.purchaseSnack(id, quantity);
+
+    if (!purchased) {
+      return res.status(400).json({
+        message: "Purchase failed - check stock availability",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Purchase completed successfully",
+      quantityPurchased: quantity,
+    });
+  } catch (error: any) {
+    console.error(`Error processing purchase: ${error}`);
+    return res.status(500).json({
+      message: "Error processing purchase",
+      error: error.message,
+    });
+  }
+};
