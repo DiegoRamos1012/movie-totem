@@ -85,6 +85,37 @@ export const updateSnack = async (req: Request, res: Response) => {
   }
 };
 
+/* Ativa um snack */
+export const activateSnack = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || "");
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: "Invalid snack ID" });
+    }
+
+    const result = await snackService.activate(id);
+
+    if (result === false) {
+      return res.status(404).json({ message: "Snack not found" });
+    }
+
+    if (result === "already_active") {
+      return res.status(200).json({
+        message: "Snack is already active",
+      });
+    }
+
+    return res.status(200).json({ message: "Snack activated successfully" });
+  } catch (error: any) {
+    console.error(`Error activating snack: ${error}`);
+    return res.status(500).json({
+      message: "Error activating snack",
+      error: error.message
+    });
+  }
+};
+
 /* Desativa um snack */
 export const deactivateSnack = async (req: Request, res: Response) => {
   try {
@@ -94,10 +125,16 @@ export const deactivateSnack = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid snack ID" });
     }
 
-    const deactivated = await snackService.deactivate(id);
+    const result = await snackService.deactivate(id);
 
-    if (!deactivated) {
+    if (result === false) {
       return res.status(404).json({ message: "Snack not found" });
+    }
+
+    if (result === "already_inactive") {
+      return res.status(200).json({
+        message: "Snack is already inactive",
+      });
     }
 
     return res.status(200).json({ message: "Snack deactivated successfully" });

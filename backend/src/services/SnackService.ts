@@ -15,7 +15,6 @@ export class SnackService {
         size: true,
         price: true,
         imageUrl: true,
-        calories: true,
         ingredients: true,
         allergens: true,
         isCombo: true,
@@ -62,8 +61,8 @@ export class SnackService {
     return false;
   }
 
-  /* Desativa snack */
-  async deactivate(id: number): Promise<boolean> {
+  /* Desativa um snack */
+  async deactivate(id: number): Promise<boolean | "already_inactive"> {
     const snack = await this.findById(id);
 
     if (!snack) {
@@ -71,10 +70,39 @@ export class SnackService {
       return false;
     }
 
+    if (!snack.active) {
+      console.log(`ℹ️  ${snack.name} já está inativo no sistema (ID: ${id})`);
+      return "already_inactive"; // ← Retorna status específico
+    }
+
     const result = await this.snackRepository.update(id, { active: false });
 
     if (result.affected !== 0) {
       console.log(`🔴 Snack desativado: ${snack.name} (ID: ${id})`);
+      return true;
+    }
+
+    return false;
+  }
+
+  /* Ativa um snack desativado */
+  async activate(id: number): Promise<boolean | "already_active"> {
+    const snack = await this.findById(id);
+
+    if (!snack) {
+      console.log(`⚠️ Tentativa de ativar snack inexistente (ID: ${id})`);
+      return false;
+    }
+
+    if (snack.active) {
+      console.log(`ℹ️  ${snack.name} já está ativo no sistema (ID: ${id})`);
+      return "already_active"; // ← Retorna status específico
+    }
+
+    const result = await this.snackRepository.update(id, { active: true });
+
+    if (result.affected !== 0) {
+      console.log(`🟢 Snack ativado: ${snack.name} (ID: ${id})`);
       return true;
     }
 
