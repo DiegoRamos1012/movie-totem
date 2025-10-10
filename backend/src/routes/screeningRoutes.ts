@@ -4,13 +4,22 @@ import {
   getScreeningById,
   addScreening,
   updateScreening,
+  activateScreening,
+  deactivateScreening,
 } from "../controllers/ScreeningController.js";
 
 const router = Router();
 
+/* Rotas de listagem e busca */
 router.get("/", getScreenings);
 router.get("/:id", getScreeningById);
+
+/* Rotas de criação e atualização */
 router.post("/", addScreening);
 router.put("/:id", updateScreening);
+
+/* Rotas de ativação/desativação */
+router.patch("/:id/activate", activateScreening);
+router.patch("/:id/deactivate", deactivateScreening);
 
 export default router;

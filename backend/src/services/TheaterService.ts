@@ -4,48 +4,102 @@ import { Theater } from "../models/Theater.js";
 export class TheaterService {
   private theaterRepository = AppDataSource.getRepository(Theater);
 
-  // Para o totem - listar salas ativas
+  /* Busca todas as salas ativas, ordenadas por nome */
   async findAll(): Promise<Theater[]> {
-    return await this.theaterRepository.find({
+    const theaters = await this.theaterRepository.find({
       where: { active: true },
       order: { name: "ASC" },
     });
+
+    console.log(`✅ ${theaters.length} salas ativas encontradas`);
+    return theaters;
   }
 
-  // Para vinculação com sessões
+  /* Busca uma sala específica por ID */
   async findById(id: number): Promise<Theater | null> {
-    return await this.theaterRepository.findOne({
+    const theater = await this.theaterRepository.findOne({
       where: { id },
     });
+
+    if (!theater) {
+      console.log(`⚠️ Sala com ID ${id} não encontrada`);
+      return null;
+    }
+
+    console.log(`✅ Sala encontrada: ${theater.name}`);
+    return theater;
   }
 
-  // Para administração
+  /* Cria uma nova sala no sistema */
   async create(theaterData: Partial<Theater>): Promise<Theater> {
     const theater = this.theaterRepository.create({
       ...theaterData,
       active: theaterData.active ?? true,
     });
-    return await this.theaterRepository.save(theater);
+
+    const savedTheater = await this.theaterRepository.save(theater);
+    console.log(
+      `✅ Sala criada com sucesso: ${savedTheater.name} (ID: ${savedTheater.id})`
+    );
+    return savedTheater;
   }
 
-  async desactivate(id: number): Promise<Theater> {
+  /* Atualiza os dados de uma sala existente */
+  async update(
+    id: number,
+    theaterData: Partial<Theater>
+  ): Promise<Theater | null> {
     const theater = await this.theaterRepository.findOneBy({ id });
-    if (!theater) {
-      throw new Error("Theater not found");
-    }
-    await this.theaterRepository.update(id, { active: false });
-    const updatedTheater = await this.theaterRepository.findOneBy({ id });
-    return updatedTheater!;
-  }
 
-  // Update apenas name, capacity e active - retorna o theater atualizado
-  async update(id: number, theaterData: Partial<Theater>): Promise<Theater> {
-    const theater = await this.theaterRepository.findOneBy({ id });
     if (!theater) {
-      throw new Error("Theater not found");
+      console.log(`⚠️ Sala com ID ${id} não encontrada para atualização`);
+      return null;
     }
+
     await this.theaterRepository.update(id, theaterData);
+
     const updatedTheater = await this.theaterRepository.findOneBy({ id });
-    return updatedTheater!;
+    console.log(`✅ Sala atualizada com sucesso: ${updatedTheater?.name}`);
+    return updatedTheater;
+  }
+
+  /* Ativa uma sala (torna disponível para sessões) */
+  async activate(id: number): Promise<boolean | "already_active"> {
+    const theater = await this.theaterRepository.findOneBy({ id });
+
+    if (!theater) {
+      console.log(`🔴 Sala com ID ${id} não encontrada para ativação`);
+      return false;
+    }
+
+    if (theater.active) {
+      console.log(`⚠️ Sala "${theater.name}" já está ativa`);
+      return "already_active";
+    }
+
+    await this.theaterRepository.update(id, { active: true });
+
+    console.log(`🟢 Sala "${theater.name}" ativada com sucesso`);
+    return true;
+  }
+
+  /* Desativa uma sala (impede novas sessões) */
+  async deactivate(id: number): Promise<boolean | "already_inactive"> {
+    const theater = await this.theaterRepository.findOneBy({ id });
+
+    if (!theater) {
+      console.log(`🔴 Sala com ID ${id} não encontrada para desativação`);
+      return false;
+    }
+
+    if (!theater.active) {
+      console.log(`⚠️ Sala "${theater.name}" já está inativa`);
+      return "already_inactive";
+    }
+
+    await this.theaterRepository.update(id, { active: false });
+
+    console.log(`🔴 Sala "${theater.name}" desativada com sucesso`);
+    return true;
   }
 }
