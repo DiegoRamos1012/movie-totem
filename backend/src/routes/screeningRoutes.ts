@@ -13,8 +13,12 @@ const router = Router();
 
 /* Rotas de listagem e busca */
 router.get("/", getScreenings);
+
+/* Rotas específicas ANTES das genéricas */
 router.get("/movie/:movieId", getScreeningsByMovie);
-router.get("/:id", getScreeningById); 
+
+/* Rota genérica por último */
+router.get("/:id", getScreeningById);
 
 /* Rotas de criação e atualização */
 router.post("/", addScreening);

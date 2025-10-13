@@ -36,11 +36,11 @@ export class Screening {
   active: boolean;
 
   // Relacionamentos
-  @ManyToOne(() => Movie, { eager: true })
+  @ManyToOne(() => Movie)
   @JoinColumn({ name: "movie_id" })
   movie: Movie;
 
-  @ManyToOne(() => Theater, { eager: true })
+  @ManyToOne(() => Theater)
   @JoinColumn({ name: "theater_id" })
   theater: Theater;
 }

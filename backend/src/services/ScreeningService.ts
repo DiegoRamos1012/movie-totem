@@ -1,6 +1,5 @@
 import { AppDataSource } from "../config/database.js";
 import { Screening } from "../models/Screening.js";
-import { Raw } from "typeorm";
 
 export class ScreeningService {
   private screeningRepository = AppDataSource.getRepository(Screening);
@@ -38,19 +37,36 @@ export class ScreeningService {
     return screening;
   }
 
-  /* Busca sessões de um filme específico */
+  /* Busca sessões de um filme específico - OTIMIZADO */
   async findByMovie(movieId: number): Promise<Screening[]> {
-    return await this.screeningRepository.find({
-      where: {
-        movieId,
-        active: true,
-      },
-      relations: ["movie", "theater"],
-      order: {
-        screeningDate: "ASC",
-        startTime: "ASC",
-      },
-    });
+    return await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.movieId",
+        "screening.theaterId",
+        "screening.screeningDate",
+        "screening.startTime",
+        "screening.availableSeats",
+        "screening.basePrice",
+        "screening.active",
+        // Apenas campos necessários do filme
+        "movie.id",
+        "movie.name",
+        "movie.duration",
+        "movie.posterUrl",
+        // Apenas campos necessários da sala
+        "theater.id",
+        "theater.name",
+        "theater.capacity",
+      ])
+      .leftJoin("screening.movie", "movie")
+      .leftJoin("screening.theater", "theater")
+      .where("screening.movieId = :movieId", { movieId })
+      .andWhere("screening.active = :active", { active: true })
+      .orderBy("screening.screeningDate", "ASC")
+      .addOrderBy("screening.startTime", "ASC")
+      .getMany();
   }
 
   /* Cria uma nova sessão de filme */
@@ -71,11 +87,18 @@ export class ScreeningService {
     });
 
     const savedScreening = await this.screeningRepository.save(newScreening);
+
+    // Retornar com relações carregadas
+    const result = await this.screeningRepository.findOne({
+      where: { id: savedScreening.id },
+      relations: ["movie", "theater"],
+    });
+
     console.log(`✅ Sessão criada com sucesso: ID ${savedScreening.id}`);
-    return savedScreening;
+    return result!;
   }
 
-  /* Atualiza os dados de uma sessão existente */
+  /* Atualiza os dados de uma sessão existente - OTIMIZADO */
   async update(
     id: number,
     data: Partial<Screening>
@@ -98,10 +121,29 @@ export class ScreeningService {
 
     await this.screeningRepository.update(id, data);
 
-    const updatedScreening = await this.screeningRepository.findOne({
-      where: { id },
-      relations: ["movie", "theater"],
-    });
+    // Retornar apenas com campos essenciais usando QueryBuilder
+    const updatedScreening = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.movieId",
+        "screening.theaterId",
+        "screening.screeningDate",
+        "screening.startTime",
+        "screening.availableSeats",
+        "screening.basePrice",
+        "screening.active",
+        "movie.id",
+        "movie.name",
+        "movie.duration",
+        "theater.id",
+        "theater.name",
+        "theater.capacity",
+      ])
+      .leftJoin("screening.movie", "movie")
+      .leftJoin("screening.theater", "theater")
+      .where("screening.id = :id", { id })
+      .getOne();
 
     console.log(`✅ Sessão atualizada com sucesso: ID ${id}`);
     return updatedScreening;
@@ -147,20 +189,19 @@ export class ScreeningService {
     return true;
   }
 
-  /* Desativa sessões expiradas (data + horário já passaram + tolerância) */
+  /* Desativa sessões expiradas (data + horário já passaram + tolerância) - OTIMIZADO */
   async deactivateExpiredScreenings(): Promise<number> {
     try {
       const now = new Date();
       const TOLERANCE_MINUTES = 30;
 
-      // Buscar apenas campos necessários para performance
+      // Query otimizada: busca APENAS campos necessários
       const screenings = await this.screeningRepository
         .createQueryBuilder("screening")
         .select([
           "screening.id",
           "screening.screeningDate",
           "screening.startTime",
-          "screening.active",
           "movie.duration",
         ])
         .innerJoin("screening.movie", "movie")
@@ -190,6 +231,7 @@ export class ScreeningService {
         }
       }
 
+      console.log(`✅ ${deactivatedCount} sessões expiradas desativadas`);
       return deactivatedCount;
     } catch (error) {
       console.error(`Erro ao desativar sessões expiradas: ${error}`);
@@ -261,15 +303,15 @@ export class ScreeningService {
     startTime: string,
     excludeScreeningId?: number
   ): Promise<Screening | null> {
-    // Buscar todas as sessões ativas na mesma sala e data
-    const screenings = await this.screeningRepository.find({
-      where: {
-        theaterId,
-        screeningDate,
-        active: true,
-      },
-      relations: ["movie"],
-    });
+    // Buscar apenas campos necessários para validação
+    const screenings = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select(["screening.id", "screening.startTime", "movie.duration"])
+      .innerJoin("screening.movie", "movie")
+      .where("screening.theaterId = :theaterId", { theaterId })
+      .andWhere("screening.screeningDate = :screeningDate", { screeningDate })
+      .andWhere("screening.active = :active", { active: true })
+      .getMany();
 
     // Converter horário de início para minutos
     const [hours, minutes] = startTime.split(":").map(Number);

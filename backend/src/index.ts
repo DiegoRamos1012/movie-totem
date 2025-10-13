@@ -5,11 +5,10 @@ import chalk from "chalk";
 import movieRoutes from "./routes/movieRoutes.js";
 import screeningRoutes from "./routes/screeningRoutes.js";
 import theaterRoutes from "./routes/theaterRoutes.js";
-import snackRoutes from "./routes/snackRoutes.js"
-import seatRoutes from "./routes/seatRoutes.js"; 
+import snackRoutes from "./routes/snackRoutes.js";
+import seatRoutes from "./routes/seatRoutes.js";
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
-
 
 // Carrega as variáveis do arquivo .env
 dotenv.config();
@@ -23,8 +22,7 @@ app.use("/movies", movieRoutes);
 app.use("/screenings", screeningRoutes);
 app.use("/theaters", theaterRoutes);
 app.use("/seats", seatRoutes);
-// app.use("/ticket", ticketRoutes);
-app.use("/snacks", snackRoutes); 
+app.use("/snacks", snackRoutes);
 
 // Rota de teste
 app.get("/health", (req, res) => {
@@ -44,8 +42,8 @@ AppDataSource.initialize()
     // Instanciar jobs após conectar no banco
     const screeningJobs = new ScreeningJobs();
 
-    // ✅ Armazenar referência do interval para poder cancelar depois
-    const jobInterval = setInterval(
+    // Executar job a cada 10 minutos
+    setInterval(
       () => screeningJobs.deactivateExpiredScreenings(),
       10 * 60 * 1000
     );
@@ -53,35 +51,8 @@ AppDataSource.initialize()
     // Executar uma vez após 30 segundos
     setTimeout(() => screeningJobs.deactivateExpiredScreenings(), 30 * 1000);
 
-    // ✅ GRACEFUL SHUTDOWN - Captura sinais de encerramento
-    const gracefulShutdown = (signal: string) => {
-      console.log(chalk.yellow(`\n⏹️ Encerrando servidor...`));
-
-      // 1. Parar de aceitar novas requisições
-      server.close(() => {
-        console.log(chalk.blue("✅ Servidor HTTP finalizado"));
-
-        console.log(chalk.blue("🔄 Cancelando jobs automáticos..."));
-
-        // 2. Cancelar jobs automáticos
-        clearInterval(jobInterval);
-        console.log(chalk.blue("✅ Job automático cancelado"));
-
-        console.log(chalk.blue("🔄 Fechando conexão com banco..."));
-
-        // 3. Fechar conexão com banco
-        AppDataSource.destroy()
-          .then(() => {
-            console.log(chalk.blue("✅ Conexão com banco fechada"));
-            console.log(chalk.green("🎬 Sistema encerrado com segurança!"));
-            process.exit(0);
-          })
-          .catch(() => process.exit(1));
-      });
-    };
-
-    // ✅ Armazenar referência do servidor para poder fechar
-    const server = app.listen(PORT, () => {
+    // Iniciar servidor
+    app.listen(PORT, () => {
       console.log("=".repeat(50));
       console.log(chalk.bold("🎞️  Backend do ProjetoCinema"));
       console.log(chalk.green(`🚀 Servidor: http://localhost:${PORT}`));
@@ -91,15 +62,8 @@ AppDataSource.initialize()
       console.log(
         chalk.magenta("🤖 Job automático: Ativo (executa a cada 10 min)")
       );
-      console.log(
-        chalk.gray("💡 Pressione Ctrl+C para encerrar com segurança")
-      );
       console.log("=".repeat(50));
     });
-
-    // ✅ Registrar listeners para sinais de encerramento
-    process.on("SIGINT", () => gracefulShutdown("SIGINT")); // Ctrl+C
-    process.on("SIGTERM", () => gracefulShutdown("SIGTERM")); // Kill command
   })
   .catch((error) => {
     console.error(chalk.red("❌ Erro ao conectar com banco:"), error);
