@@ -4,27 +4,74 @@ import { Screening } from "../models/Screening.js";
 export class ScreeningService {
   private screeningRepository = AppDataSource.getRepository(Screening);
 
-  /* Busca todas as sessões ativas em ordem crescente de data e horário */
   async findAll(): Promise<Screening[]> {
-    const screenings = await this.screeningRepository.find({
-      where: { active: true },
-      relations: ["movie", "theater"],
-      order: {
-        screeningDate: "ASC",
-        startTime: "ASC",
-      },
-    });
+    const screenings = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.movieId",
+        "screening.theaterId",
+        "screening.screeningDate",
+        "screening.startTime",
+        "screening.availableSeats",
+        "screening.basePrice",
+        "screening.active",
+        "movie.id",
+        "movie.name",
+        "movie.originalName",
+        "movie.duration",
+        "movie.rating",
+        "movie.posterUrl",
+        "movie.active",
+        "theater.id",
+        "theater.name",
+        "theater.capacity",
+        "theater.active",
+      ])
+      .leftJoin("screening.movie", "movie")
+      .leftJoin("screening.theater", "theater")
+      .where("screening.active = :active", { active: true })
+      .orderBy("screening.screeningDate", "ASC")
+      .addOrderBy("screening.startTime", "ASC")
+      .getMany();
 
     console.log(`✅ ${screenings.length} sessões ativas encontradas`);
     return screenings;
   }
 
-  /* Busca uma sessão específica por ID */
   async findById(id: number): Promise<Screening | null> {
-    const screening = await this.screeningRepository.findOne({
-      where: { id },
-      relations: ["movie", "theater"],
-    });
+    const screening = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.movieId",
+        "screening.theaterId",
+        "screening.screeningDate",
+        "screening.startTime",
+        "screening.availableSeats",
+        "screening.basePrice",
+        "screening.active",
+        "movie.id",
+        "movie.name",
+        "movie.originalName",
+        "movie.casting",
+        "movie.direction",
+        "movie.synopsis",
+        "movie.genre",
+        "movie.duration",
+        "movie.rating",
+        "movie.releaseDate",
+        "movie.posterUrl",
+        "movie.active",
+        "theater.id",
+        "theater.name",
+        "theater.capacity",
+        "theater.active",
+      ])
+      .leftJoin("screening.movie", "movie")
+      .leftJoin("screening.theater", "theater")
+      .where("screening.id = :id", { id })
+      .getOne();
 
     if (!screening) {
       console.log(`⚠️ Sessão com ID ${id} não encontrada`);
@@ -37,7 +84,6 @@ export class ScreeningService {
     return screening;
   }
 
-  /* Busca sessões de um filme específico - OTIMIZADO */
   async findByMovie(movieId: number): Promise<Screening[]> {
     return await this.screeningRepository
       .createQueryBuilder("screening")
@@ -50,12 +96,10 @@ export class ScreeningService {
         "screening.availableSeats",
         "screening.basePrice",
         "screening.active",
-        // Apenas campos necessários do filme
         "movie.id",
         "movie.name",
         "movie.duration",
         "movie.posterUrl",
-        // Apenas campos necessários da sala
         "theater.id",
         "theater.name",
         "theater.capacity",
@@ -69,12 +113,9 @@ export class ScreeningService {
       .getMany();
   }
 
-  /* Cria uma nova sessão de filme */
   async create(screeningData: Partial<Screening>): Promise<Screening> {
-    // Validar campos obrigatórios
     this.validateRequiredFields(screeningData);
 
-    // Validar conflito de horário na sala
     await this.validateTimeConflict(
       screeningData.theaterId!,
       screeningData.screeningDate!,
@@ -88,17 +129,33 @@ export class ScreeningService {
 
     const savedScreening = await this.screeningRepository.save(newScreening);
 
-    // Retornar com relações carregadas
-    const result = await this.screeningRepository.findOne({
-      where: { id: savedScreening.id },
-      relations: ["movie", "theater"],
-    });
+    const result = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.movieId",
+        "screening.theaterId",
+        "screening.screeningDate",
+        "screening.startTime",
+        "screening.availableSeats",
+        "screening.basePrice",
+        "screening.active",
+        "movie.id",
+        "movie.name",
+        "movie.duration",
+        "theater.id",
+        "theater.name",
+        "theater.capacity",
+      ])
+      .leftJoin("screening.movie", "movie")
+      .leftJoin("screening.theater", "theater")
+      .where("screening.id = :id", { id: savedScreening.id })
+      .getOne();
 
     console.log(`✅ Sessão criada com sucesso: ID ${savedScreening.id}`);
     return result!;
   }
 
-  /* Atualiza os dados de uma sessão existente - OTIMIZADO */
   async update(
     id: number,
     data: Partial<Screening>
@@ -110,7 +167,6 @@ export class ScreeningService {
       return null;
     }
 
-    // Se estiver mudando data/hora/sala, validar conflito
     if (data.theaterId || data.screeningDate || data.startTime) {
       const theaterId = data.theaterId ?? screening.theaterId;
       const screeningDate = data.screeningDate ?? screening.screeningDate;
@@ -121,7 +177,6 @@ export class ScreeningService {
 
     await this.screeningRepository.update(id, data);
 
-    // Retornar apenas com campos essenciais usando QueryBuilder
     const updatedScreening = await this.screeningRepository
       .createQueryBuilder("screening")
       .select([
@@ -149,7 +204,6 @@ export class ScreeningService {
     return updatedScreening;
   }
 
-  /* Ativa uma sessão (torna visível no sistema) */
   async activate(id: number): Promise<boolean | "already_active"> {
     const screening = await this.screeningRepository.findOneBy({ id });
 
@@ -169,7 +223,6 @@ export class ScreeningService {
     return true;
   }
 
-  /* Desativa uma sessão (remove da visualização do sistema) */
   async deactivate(id: number): Promise<boolean | "already_inactive"> {
     const screening = await this.screeningRepository.findOneBy({ id });
 
@@ -189,13 +242,11 @@ export class ScreeningService {
     return true;
   }
 
-  /* Desativa sessões expiradas (data + horário já passaram + tolerância) - OTIMIZADO */
   async deactivateExpiredScreenings(): Promise<number> {
     try {
       const now = new Date();
       const TOLERANCE_MINUTES = 30;
 
-      // Query otimizada: busca APENAS campos necessários
       const screenings = await this.screeningRepository
         .createQueryBuilder("screening")
         .select([
@@ -211,18 +262,15 @@ export class ScreeningService {
       let deactivatedCount = 0;
 
       for (const screening of screenings) {
-        // Combinar data e horário em um Date
         const [hours, minutes] = screening.startTime.split(":").map(Number);
         const screeningDateTime = new Date(screening.screeningDate);
         screeningDateTime.setHours(hours, minutes, 0, 0);
 
-        // Adicionar duração do filme + tolerância
         const endTime = new Date(screeningDateTime);
         endTime.setMinutes(
           endTime.getMinutes() + screening.movie.duration + TOLERANCE_MINUTES
         );
 
-        // Se passou do horário + tolerância, desativar
         if (now > endTime) {
           await this.screeningRepository.update(screening.id, {
             active: false,
@@ -239,7 +287,6 @@ export class ScreeningService {
     }
   }
 
-  /* Valida se todos os campos obrigatórios foram fornecidos */
   private validateRequiredFields(data: Partial<Screening>): void {
     if (!data.movieId) {
       console.log(`🔴 Erro: ID do filme é obrigatório`);
@@ -272,7 +319,6 @@ export class ScreeningService {
     }
   }
 
-  /* Valida se há conflito de horário na sala escolhida */
   private async validateTimeConflict(
     theaterId: number,
     screeningDate: Date,
@@ -296,14 +342,12 @@ export class ScreeningService {
     }
   }
 
-  /* Busca conflitos de horário na mesma sala e data */
   private async findTimeConflict(
     theaterId: number,
     screeningDate: Date,
     startTime: string,
     excludeScreeningId?: number
   ): Promise<Screening | null> {
-    // Buscar apenas campos necessários para validação
     const screenings = await this.screeningRepository
       .createQueryBuilder("screening")
       .select(["screening.id", "screening.startTime", "movie.duration"])
@@ -313,13 +357,10 @@ export class ScreeningService {
       .andWhere("screening.active = :active", { active: true })
       .getMany();
 
-    // Converter horário de início para minutos
     const [hours, minutes] = startTime.split(":").map(Number);
     const newStartMinutes = hours * 60 + minutes;
 
-    // Verificar conflitos
     for (const screening of screenings) {
-      // Ignorar a própria sessão se estiver atualizando
       if (excludeScreeningId && screening.id === excludeScreeningId) {
         continue;
       }
@@ -331,7 +372,6 @@ export class ScreeningService {
       const existingEndMinutes =
         existingStartMinutes + screening.movie.duration;
 
-      // Verificar se há sobreposição (com margem de 15 minutos para limpeza)
       const CLEANUP_TIME = 15;
       if (
         newStartMinutes >= existingStartMinutes - CLEANUP_TIME &&
