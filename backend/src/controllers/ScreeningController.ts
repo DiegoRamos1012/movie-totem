@@ -70,27 +70,27 @@ export const getScreeningsByMovie = async (req: Request, res: Response) => {
 
     // Agrupar por data e sala
     const grouped = screenings.reduce((acc: any, screening: any) => {
-      const date = new Date(screening.screeningTime).toLocaleDateString(
-        "pt-BR"
-      );
+      // Formatar data corretamente
+      const screeningDate = new Date(screening.screeningDate);
+      const date = screeningDate.toLocaleDateString("pt-BR", {
+        timeZone: "UTC",
+      });
 
       if (!acc[date]) {
         acc[date] = [];
       }
 
+      // Formatar horário corretamente (já vem como string "HH:MM:SS")
+      const startTime = screening.startTime.substring(0, 5); // "19:00:00" -> "19:00"
+
       acc[date].push({
         id: screening.id,
         theater: screening.theater.name,
+        theaterId: screening.theaterId,
         capacity: screening.theater.capacity,
-        startTime: new Date(screening.screeningTime).toLocaleTimeString(
-          "pt-BR",
-          {
-            hour: "2-digit",
-            minute: "2-digit",
-          }
-        ),
+        startTime: startTime,
         availableSeats: screening.availableSeats,
-        price: screening.basePrice,
+        price: parseFloat(screening.basePrice),
       });
 
       return acc;
