@@ -4,7 +4,6 @@ import chalk from "chalk";
 export class ScreeningJobs {
   private screeningService = new ScreeningService();
 
-  /* Job para desativar sessões que passaram da tolerância */
   async deactivateExpiredScreenings(): Promise<void> {
     try {
       const now = new Date();
@@ -20,10 +19,11 @@ export class ScreeningJobs {
       if (deactivatedCount > 0) {
         console.log(chalk.yellow(`⚡ ${deactivatedCount} sessões desativadas`));
       } else {
-        console.log(chalk.green("✅ Nenhuma sessão foi desativada"));
+        console.log(chalk.green("✅ Nenhuma sessão expirada encontrada"));
       }
-    } catch (error) { 
+    } catch (error) {
       console.error(chalk.red(`❌ Erro no job de desativação: ${error}`));
+      throw error;
     }
   }
 }

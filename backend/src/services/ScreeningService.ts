@@ -243,48 +243,42 @@ export class ScreeningService {
   }
 
   async deactivateExpiredScreenings(): Promise<number> {
-    try {
-      const now = new Date();
-      const TOLERANCE_MINUTES = 30;
+    const now = new Date();
+    const TOLERANCE_MINUTES = 30;
 
-      const screenings = await this.screeningRepository
-        .createQueryBuilder("screening")
-        .select([
-          "screening.id",
-          "screening.screeningDate",
-          "screening.startTime",
-          "movie.duration",
-        ])
-        .innerJoin("screening.movie", "movie")
-        .where("screening.active = :active", { active: true })
-        .getMany();
+    const screenings = await this.screeningRepository
+      .createQueryBuilder("screening")
+      .select([
+        "screening.id",
+        "screening.screeningDate",
+        "screening.startTime",
+        "movie.duration",
+      ])
+      .innerJoin("screening.movie", "movie")
+      .where("screening.active = :active", { active: true })
+      .getMany();
 
-      let deactivatedCount = 0;
+    let deactivatedCount = 0;
 
-      for (const screening of screenings) {
-        const [hours, minutes] = screening.startTime.split(":").map(Number);
-        const screeningDateTime = new Date(screening.screeningDate);
-        screeningDateTime.setHours(hours, minutes, 0, 0);
+    for (const screening of screenings) {
+      const [hours, minutes] = screening.startTime.split(":").map(Number);
+      const screeningDateTime = new Date(screening.screeningDate);
+      screeningDateTime.setHours(hours, minutes, 0, 0);
 
-        const endTime = new Date(screeningDateTime);
-        endTime.setMinutes(
-          endTime.getMinutes() + screening.movie.duration + TOLERANCE_MINUTES
-        );
+      const endTime = new Date(screeningDateTime);
+      endTime.setMinutes(
+        endTime.getMinutes() + screening.movie.duration + TOLERANCE_MINUTES
+      );
 
-        if (now > endTime) {
-          await this.screeningRepository.update(screening.id, {
-            active: false,
-          });
-          deactivatedCount++;
-        }
+      if (now > endTime) {
+        await this.screeningRepository.update(screening.id, {
+          active: false,
+        });
+        deactivatedCount++;
       }
-
-      console.log(`✅ ${deactivatedCount} sessões expiradas desativadas`);
-      return deactivatedCount;
-    } catch (error) {
-      console.error(`Erro ao desativar sessões expiradas: ${error}`);
-      throw error;
     }
+
+    return deactivatedCount;
   }
 
   private validateRequiredFields(data: Partial<Screening>): void {
