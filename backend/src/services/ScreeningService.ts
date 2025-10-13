@@ -367,10 +367,20 @@ export class ScreeningService {
         existingStartMinutes + screening.movie.duration;
 
       const CLEANUP_TIME = 15;
-      if (
-        newStartMinutes >= existingStartMinutes - CLEANUP_TIME &&
-        newStartMinutes <= existingEndMinutes + CLEANUP_TIME
-      ) {
+
+      // ✅ CORREÇÃO: Validação completa
+      // Verifica se há qualquer sobreposição entre os horários
+      const newEndMinutes = newStartMinutes + screening.movie.duration;
+
+      const hasOverlap =
+        (newStartMinutes >= existingStartMinutes - CLEANUP_TIME &&
+          newStartMinutes <= existingEndMinutes + CLEANUP_TIME) ||
+        (newEndMinutes >= existingStartMinutes - CLEANUP_TIME &&
+          newEndMinutes <= existingEndMinutes + CLEANUP_TIME) ||
+        (newStartMinutes <= existingStartMinutes &&
+          newEndMinutes >= existingEndMinutes);
+
+      if (hasOverlap) {
         return screening;
       }
     }
