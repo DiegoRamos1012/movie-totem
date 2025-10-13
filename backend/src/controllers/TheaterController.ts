@@ -60,6 +60,14 @@ export const addTheater = async (req: Request, res: Response) => {
       });
     }
 
+    // Verifica se já existe uma sala com o mesmo nome
+    const existingTheater = await theaterService.findByName(req.body.name);
+    if (existingTheater) {
+      return res.status(409).json({
+        message: "Já existe uma sala com este nome",
+      });
+    }
+
     const newTheater = await theaterService.create(req.body);
     return res.status(201).json(newTheater);
   } catch (error: any) {
@@ -84,6 +92,16 @@ export const updateTheater = async (req: Request, res: Response) => {
       return res.status(400).json({
         message: "Nenhum dado fornecido para atualização",
       });
+    }
+
+    // Se estiver atualizando o nome, verifica se já existe outra sala com esse nome
+    if (req.body.name) {
+      const existingTheater = await theaterService.findByName(req.body.name);
+      if (existingTheater && existingTheater.id !== id) {
+        return res.status(409).json({
+          message: "Já existe outra sala com este nome",
+        });
+      }
     }
 
     const updatedTheater = await theaterService.update(id, req.body);

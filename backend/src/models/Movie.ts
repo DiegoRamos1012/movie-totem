@@ -21,11 +21,11 @@ export class Movie {
   @Column({ name: "original_name", type: "varchar", length: 200 })
   originalName: string;
 
-  @Column({ type: "text" })
-  casting: string;
+  @Column({ type: "text", nullable: true })
+  casting?: string;
 
-  @Column({ type: "varchar", length: 200 })
-  direction: string;
+  @Column({ type: "varchar", length: 200, nullable: true })
+  direction?: string;
 
   @Column({ type: "text" })
   synopsis: string;

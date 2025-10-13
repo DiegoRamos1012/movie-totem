@@ -30,6 +30,12 @@ export class TheaterService {
     return theater;
   }
 
+    async findByName(name: string): Promise<Theater | null> {
+    return await this.theaterRepository.findOne({
+      where: { name },
+    });
+  }
+
   /* Cria uma nova sala no sistema */
   async create(theaterData: Partial<Theater>): Promise<Theater> {
     const theater = this.theaterRepository.create({
