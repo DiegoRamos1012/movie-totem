@@ -20,24 +20,27 @@ export class Screening {
   @Column({ name: "theater_id", type: "int" })
   theaterId: number;
 
-  @Column({ name: "screening_time", type: "timestamp" })
-  screeningTime: Date;
+  @Column({ name: "screening_date", type: "date" })
+  screeningDate: Date;
+
+  @Column({ name: "start_time", type: "time" })
+  startTime: string;
 
   @Column({ name: "available_seats", type: "int" })
   availableSeats: number;
 
-  @Column({ name: "basePrice", type: "numeric", precision: 10, scale: 2 })
+  @Column({ name: "base_price", type: "numeric", precision: 10, scale: 2 })
   basePrice: number;
 
   @Column({ type: "boolean", default: true })
   active: boolean;
 
   // Relacionamentos
-  @ManyToOne(() => Movie)
+  @ManyToOne(() => Movie, { eager: true })
   @JoinColumn({ name: "movie_id" })
   movie: Movie;
 
-  @ManyToOne(() => Theater)
+  @ManyToOne(() => Theater, { eager: true })
   @JoinColumn({ name: "theater_id" })
   theater: Theater;
 }

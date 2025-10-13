@@ -9,11 +9,11 @@ export const getScreenings = async (req: Request, res: Response) => {
     const screenings = await screeningService.findAll();
 
     if (screenings.length === 0) {
-      console.log("Nenhuma sessão foi encontrada no banco de dados")
+      console.log("Nenhuma sessão foi encontrada no banco de dados");
       return res.status(200).json({
         message: "Nenhuma sessão foi cadastrada",
-        data: []
-      }) 
+        data: [],
+      });
     }
 
     return res.status(200).json(screenings);
@@ -46,6 +46,65 @@ export const getScreeningById = async (req: Request, res: Response) => {
     console.error(`Erro ao buscar sessão: ${error}`);
     return res.status(500).json({
       message: "Erro ao buscar sessão",
+      error: error.message,
+    });
+  }
+};
+
+/* Busca sessões agrupadas por filme */
+export const getScreeningsByMovie = async (req: Request, res: Response) => {
+  try {
+    const movieId = parseInt(req.params.movieId || "");
+
+    if (isNaN(movieId) || movieId <= 0) {
+      return res.status(400).json({ message: "ID de filme inválido" });
+    }
+
+    const screenings = await screeningService.findByMovie(movieId);
+
+    if (screenings.length === 0) {
+      return res.status(404).json({
+        message: "Nenhuma sessão encontrada para este filme",
+      });
+    }
+
+    // Agrupar por data e sala
+    const grouped = screenings.reduce((acc: any, screening: any) => {
+      const date = new Date(screening.screeningTime).toLocaleDateString(
+        "pt-BR"
+      );
+
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+
+      acc[date].push({
+        id: screening.id,
+        theater: screening.theater.name,
+        capacity: screening.theater.capacity,
+        startTime: new Date(screening.screeningTime).toLocaleTimeString(
+          "pt-BR",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        ),
+        availableSeats: screening.availableSeats,
+        price: screening.basePrice,
+      });
+
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      movieId,
+      movie: screenings[0]?.movie,
+      sessionsByDate: grouped,
+    });
+  } catch (error: any) {
+    console.error(`Erro ao buscar sessões do filme: ${error}`);
+    return res.status(500).json({
+      message: "Erro ao buscar sessões do filme",
       error: error.message,
     });
   }

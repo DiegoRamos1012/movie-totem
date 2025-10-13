@@ -1,16 +1,19 @@
 import { AppDataSource } from "../config/database.js";
 import { Screening } from "../models/Screening.js";
-import { Between, LessThan } from "typeorm";
+import { Raw } from "typeorm";
 
 export class ScreeningService {
   private screeningRepository = AppDataSource.getRepository(Screening);
 
-  /* Busca todas as sessões ativas em ordem crescente de horário */
+  /* Busca todas as sessões ativas em ordem crescente de data e horário */
   async findAll(): Promise<Screening[]> {
     const screenings = await this.screeningRepository.find({
       where: { active: true },
       relations: ["movie", "theater"],
-      order: { screeningTime: "ASC" },
+      order: {
+        screeningDate: "ASC",
+        startTime: "ASC",
+      },
     });
 
     console.log(`✅ ${screenings.length} sessões ativas encontradas`);
@@ -30,9 +33,24 @@ export class ScreeningService {
     }
 
     console.log(
-      `✅ Sessão encontrada: ${screening.movie?.name} - ${screening.screeningTime}`
+      `✅ Sessão encontrada: ${screening.movie?.name} - ${screening.screeningDate} às ${screening.startTime}`
     );
     return screening;
+  }
+
+  /* Busca sessões de um filme específico */
+  async findByMovie(movieId: number): Promise<Screening[]> {
+    return await this.screeningRepository.find({
+      where: {
+        movieId,
+        active: true,
+      },
+      relations: ["movie", "theater"],
+      order: {
+        screeningDate: "ASC",
+        startTime: "ASC",
+      },
+    });
   }
 
   /* Cria uma nova sessão de filme */
@@ -43,14 +61,13 @@ export class ScreeningService {
     // Validar conflito de horário na sala
     await this.validateTimeConflict(
       screeningData.theaterId!,
-      new Date(screeningData.screeningTime!)
+      screeningData.screeningDate!,
+      screeningData.startTime!
     );
 
     const newScreening = this.screeningRepository.create({
       ...screeningData,
       active: screeningData.active ?? true,
-      availableSeats: screeningData.availableSeats,
-      basePrice: screeningData.basePrice,
     });
 
     const savedScreening = await this.screeningRepository.save(newScreening);
@@ -68,6 +85,15 @@ export class ScreeningService {
     if (!screening) {
       console.log(`⚠️ Sessão com ID ${id} não encontrada para atualização`);
       return null;
+    }
+
+    // Se estiver mudando data/hora/sala, validar conflito
+    if (data.theaterId || data.screeningDate || data.startTime) {
+      const theaterId = data.theaterId ?? screening.theaterId;
+      const screeningDate = data.screeningDate ?? screening.screeningDate;
+      const startTime = data.startTime ?? screening.startTime;
+
+      await this.validateTimeConflict(theaterId, screeningDate, startTime, id);
     }
 
     await this.screeningRepository.update(id, data);
@@ -121,33 +147,54 @@ export class ScreeningService {
     return true;
   }
 
-  /* Desativa automaticamente sessões expiradas (após 20 minutos do horário) */
+  /* Desativa sessões expiradas (data + horário já passaram + tolerância) */
   async deactivateExpiredScreenings(): Promise<number> {
-    const now = new Date();
-    const toleranceMinutes = 20;
+    try {
+      const now = new Date();
+      const TOLERANCE_MINUTES = 30;
 
-    // Calcular data limite (20 minutos atrás)
-    const expiredTime = new Date(now.getTime() - toleranceMinutes * 60 * 1000);
+      // Buscar apenas campos necessários para performance
+      const screenings = await this.screeningRepository
+        .createQueryBuilder("screening")
+        .select([
+          "screening.id",
+          "screening.screeningDate",
+          "screening.startTime",
+          "screening.active",
+          "movie.duration",
+        ])
+        .innerJoin("screening.movie", "movie")
+        .where("screening.active = :active", { active: true })
+        .getMany();
 
-    const result = await this.screeningRepository.update(
-      {
-        screeningTime: LessThan(expiredTime),
-        active: true,
-      },
-      {
-        active: false,
+      let deactivatedCount = 0;
+
+      for (const screening of screenings) {
+        // Combinar data e horário em um Date
+        const [hours, minutes] = screening.startTime.split(":").map(Number);
+        const screeningDateTime = new Date(screening.screeningDate);
+        screeningDateTime.setHours(hours, minutes, 0, 0);
+
+        // Adicionar duração do filme + tolerância
+        const endTime = new Date(screeningDateTime);
+        endTime.setMinutes(
+          endTime.getMinutes() + screening.movie.duration + TOLERANCE_MINUTES
+        );
+
+        // Se passou do horário + tolerância, desativar
+        if (now > endTime) {
+          await this.screeningRepository.update(screening.id, {
+            active: false,
+          });
+          deactivatedCount++;
+        }
       }
-    );
 
-    const affected = result.affected || 0;
-
-    if (affected > 0) {
-      console.log(
-        `⏰ ${affected} sessões expiradas foram desativadas automaticamente`
-      );
+      return deactivatedCount;
+    } catch (error) {
+      console.error(`Erro ao desativar sessões expiradas: ${error}`);
+      throw error;
     }
-
-    return affected;
   }
 
   /* Valida se todos os campos obrigatórios foram fornecidos */
@@ -162,18 +209,40 @@ export class ScreeningService {
       throw new Error("Theater ID is required");
     }
 
-    if (!data.screeningTime) {
-      console.log(`🔴 Erro: Horário da sessão é obrigatório`);
-      throw new Error("Screening time is required");
+    if (!data.screeningDate) {
+      console.log(`🔴 Erro: Data da sessão é obrigatória`);
+      throw new Error("Screening date is required");
+    }
+
+    if (!data.startTime) {
+      console.log(`🔴 Erro: Horário de início é obrigatório`);
+      throw new Error("Start time is required");
+    }
+
+    if (!data.availableSeats) {
+      console.log(`🔴 Erro: Número de assentos disponíveis é obrigatório`);
+      throw new Error("Available seats is required");
+    }
+
+    if (!data.basePrice) {
+      console.log(`🔴 Erro: Preço base é obrigatório`);
+      throw new Error("Base price is required");
     }
   }
 
   /* Valida se há conflito de horário na sala escolhida */
   private async validateTimeConflict(
     theaterId: number,
-    screeningTime: Date
+    screeningDate: Date,
+    startTime: string,
+    excludeScreeningId?: number
   ): Promise<void> {
-    const conflict = await this.findTimeConflict(theaterId, screeningTime);
+    const conflict = await this.findTimeConflict(
+      theaterId,
+      screeningDate,
+      startTime,
+      excludeScreeningId
+    );
 
     if (conflict) {
       console.log(
@@ -185,21 +254,51 @@ export class ScreeningService {
     }
   }
 
-  /* Busca conflitos de horário em uma janela de 3 horas */
+  /* Busca conflitos de horário na mesma sala e data */
   private async findTimeConflict(
     theaterId: number,
-    screeningTime: Date
+    screeningDate: Date,
+    startTime: string,
+    excludeScreeningId?: number
   ): Promise<Screening | null> {
-    const threeHours = 3 * 60 * 60 * 1000;
-    const startTime = new Date(screeningTime.getTime() - threeHours);
-    const endTime = new Date(screeningTime.getTime() + threeHours);
-
-    return await this.screeningRepository.findOne({
+    // Buscar todas as sessões ativas na mesma sala e data
+    const screenings = await this.screeningRepository.find({
       where: {
         theaterId,
-        screeningTime: Between(startTime, endTime),
+        screeningDate,
         active: true,
       },
+      relations: ["movie"],
     });
+
+    // Converter horário de início para minutos
+    const [hours, minutes] = startTime.split(":").map(Number);
+    const newStartMinutes = hours * 60 + minutes;
+
+    // Verificar conflitos
+    for (const screening of screenings) {
+      // Ignorar a própria sessão se estiver atualizando
+      if (excludeScreeningId && screening.id === excludeScreeningId) {
+        continue;
+      }
+
+      const [existingHours, existingMinutes] = screening.startTime
+        .split(":")
+        .map(Number);
+      const existingStartMinutes = existingHours * 60 + existingMinutes;
+      const existingEndMinutes =
+        existingStartMinutes + screening.movie.duration;
+
+      // Verificar se há sobreposição (com margem de 15 minutos para limpeza)
+      const CLEANUP_TIME = 15;
+      if (
+        newStartMinutes >= existingStartMinutes - CLEANUP_TIME &&
+        newStartMinutes <= existingEndMinutes + CLEANUP_TIME
+      ) {
+        return screening;
+      }
+    }
+
+    return null;
   }
 }

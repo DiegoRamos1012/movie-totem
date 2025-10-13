@@ -6,13 +6,15 @@ import {
   updateScreening,
   activateScreening,
   deactivateScreening,
+  getScreeningsByMovie,
 } from "../controllers/ScreeningController.js";
 
 const router = Router();
 
 /* Rotas de listagem e busca */
 router.get("/", getScreenings);
-router.get("/:id", getScreeningById);
+router.get("/movie/:movieId", getScreeningsByMovie);
+router.get("/:id", getScreeningById); 
 
 /* Rotas de criação e atualização */
 router.post("/", addScreening);
