@@ -13,6 +13,14 @@ export const getSeatsByTheater = async (req: Request, res: Response) => {
     }
 
     const seats = await seatService.findByTheater(theaterId);
+
+    if (seats.length === 0) {
+      console.log("Nenhum assento foi cadastrado no banco de dados")
+      return res.status(200).json({
+        message: "Nenhum assento foi cadastrado",
+        data: []
+      })
+    }
     return res.status(200).json(seats);
   } catch (error: any) {
     console.error(`Error fetching seats: ${error}`);

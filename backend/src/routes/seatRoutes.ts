@@ -18,3 +18,5 @@ router.post("/", generateSeats);
 router.patch("/:id/reserveSeat", reserveSeat);
 router.patch("/id/releaseSeat", releaseSeat);
 router.put("/:id", releaseAllSeats)
+
+export default router;

@@ -7,6 +7,16 @@ const movieService = new MovieService();
 export const getMovies = async (req: Request, res: Response) => {
   try {
     const movies = await movieService.findAll();
+
+    if (movies.length === 0) {
+      console.log("Nenhum filme foi cadastrado no banco de dados")
+      return res.status(200).json({
+        message: "Nenhum filme foi cadastrado",
+        data: []
+      })
+    }
+
+
     return res.status(200).json(movies);
   } catch (error: any) {
     console.error(`Erro ao buscar filmes: ${error}`);

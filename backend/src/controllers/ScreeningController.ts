@@ -7,6 +7,15 @@ const screeningService = new ScreeningService();
 export const getScreenings = async (req: Request, res: Response) => {
   try {
     const screenings = await screeningService.findAll();
+
+    if (screenings.length === 0) {
+      console.log("Nenhuma sessão foi encontrada no banco de dados")
+      return res.status(200).json({
+        message: "Nenhuma sessão foi cadastrada",
+        data: []
+      }) 
+    }
+
     return res.status(200).json(screenings);
   } catch (error: any) {
     console.error(`Erro ao buscar sessões: ${error}`);

@@ -7,6 +7,15 @@ const snackService = new SnackService();
 export const getSnacks = async (req: Request, res: Response) => {
   try {
     const snacks = await snackService.findAll();
+
+    if (snacks.length === 0) {
+      console.log("ℹ️ Nenhum snack ativo encontrado");
+      return res.status(200).json({
+        message: "Nenhum snack cadastrado",
+        data: [],
+      });
+    }
+    
     return res.status(200).json(snacks);
   } catch (error: any) {
     console.error(`Error fetching snacks: ${error}`);
@@ -111,7 +120,7 @@ export const activateSnack = async (req: Request, res: Response) => {
     console.error(`Error activating snack: ${error}`);
     return res.status(500).json({
       message: "Error activating snack",
-      error: error.message
+      error: error.message,
     });
   }
 };

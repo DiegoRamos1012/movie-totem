@@ -7,6 +7,15 @@ const theaterService = new TheaterService();
 export const getTheaters = async (req: Request, res: Response) => {
   try {
     const theaters = await theaterService.findAll();
+
+    if (theaters.length === 0) {
+      console.log("ℹ️  Nenhuma sala ativa encontrada no banco");
+      return res.status(200).json({
+        message: "Nenhuma sala cadastrada",
+        data: [],
+      });
+    }
+
     return res.status(200).json(theaters);
   } catch (error: any) {
     console.error(`Erro ao buscar salas: ${error}`);
