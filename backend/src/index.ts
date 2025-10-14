@@ -9,6 +9,7 @@ import snackRoutes from "./routes/snackRoutes.js";
 import seatRoutes from "./routes/seatRoutes.js";
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
 
 // Carrega as variáveis do arquivo .env
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/screenings", screeningRoutes);
 app.use("/theaters", theaterRoutes);
 app.use("/seats", seatRoutes);
 app.use("/snacks", snackRoutes);
+app.use("/tickets", ticketRoutes);
 
 // Rota de teste
 app.get("/health", (req, res) => {
