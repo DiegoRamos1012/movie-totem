@@ -95,6 +95,38 @@ export class TicketService {
       .getMany();
   }
 
+  async getSeatsMap(screening_id: number): Promise<any[]> {
+    // Busca a sessão e obtém o theaterId
+    const screening = await this.screeningRepository.findOneBy({
+      id: screening_id,
+    });
+    if (!screening) {
+      throw new Error("Screening not found");
+    }
+    const theaterId = screening.theaterId;
+
+    // Busca todos os assentos da sala
+    const seats = await this.seatRepository.findBy({ theaterId });
+
+    // Busca todos os tickets da sessão
+    const tickets = await this.ticketRepository.findBy({
+      screeningId: screening_id,
+    });
+
+    // Cria lista de seatIds ocupados
+    const occupiedSeatIds = tickets.map((ticket) => ticket.seatId);
+
+    // Monta o mapa de assentos, marcando ocupados
+    const seatsMap = seats.map((seat) => ({
+      id: seat.id,
+      row: seat.row,
+      number: seat.number,
+      occupied: occupiedSeatIds.includes(seat.id),
+    }));
+
+    return seatsMap;
+  }
+
   async create(ticketData: Partial<Ticket>): Promise<Ticket> {
     this.validateRequiredFields(ticketData);
     await this.validateScreeningExists(ticketData.screeningId!);

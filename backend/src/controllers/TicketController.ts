@@ -46,6 +46,20 @@ export const getTicketsByScreening = async (req: Request, res: Response) => {
   }
 };
 
+export const getSeatsMap = async (req: Request, res: Response) => {
+  try {
+    const { screeningId } = req.params;
+    const ticketService = new TicketService();
+    const seatsMap = await ticketService.getSeatsMap(Number(screeningId));
+    res.json(seatsMap);
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao buscar mapa de assentos",
+      error: (error as Error).message,
+    });
+  }
+};
+
 export const addTicket = async (req: Request, res: Response) => {
   try {
     const newTicket = await ticketService.create(req.body);
