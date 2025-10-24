@@ -3,12 +3,14 @@ import express from "express";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import compression from "compression";
+import cors from "cors";
 import movieRoutes from "./routes/movieRoutes.js";
 import screeningRoutes from "./routes/screeningRoutes.js";
 import theaterRoutes from "./routes/theaterRoutes.js";
 import snackRoutes from "./routes/snackRoutes.js";
 import seatRoutes from "./routes/seatRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
+import userRoutes from "./routes/userRoutes.js"
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
 
@@ -18,9 +20,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+app.use(cors());
 app.use(compression());
 app.use(express.json()); // para requisições com JSON
 app.use(express.urlencoded({ extended: true })); // para formulários
+app.use("/api/auth", userRoutes);
 app.use("/movies", movieRoutes);
 app.use("/screenings", screeningRoutes);
 app.use("/theaters", theaterRoutes);
