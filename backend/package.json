@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "seed": "tsx src/seeds/mainSeed.ts",
     "start": "node dist/index.js",
     "typeorm": "tsx ./node_modules/typeorm/cli.js",
     "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate -d src/config/database.ts",
