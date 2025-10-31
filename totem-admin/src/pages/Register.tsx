@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User as UserIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 const Register: React.FC = () => {
@@ -8,19 +8,18 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     // aqui você chamaria a API de cadastro
-    console.log("Cadastrar:", { name, email, password, remember });
+    console.log("Cadastrar:", { name, email, password });
     navigate("/login");
   }
 
   return (
     <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-semibold text-gray-800 mb-3 text-center">
-        Criar conta
+        Cadastro
       </h1>
       <p className="text-center text-sm text-gray-500 mb-6">
         Preencha os dados para criar sua conta
@@ -28,43 +27,56 @@ const Register: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <UserIcon className="h-4 w-4 text-indigo-600" aria-hidden="true" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Nome
           </label>
-          <input
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="Seu nome"
-          />
+          <div className="relative">
+            <UserIcon
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
+              aria-hidden="true"
+            />
+            <input
+              className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Seu nome"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Mail className="h-4 w-4 text-indigo-600" aria-hidden="true" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             E-mail
           </label>
-          <input
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="seu@exemplo.com"
-          />
+          <div className="relative">
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
+              aria-hidden="true"
+            />
+            <input
+              className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="seu@exemplo.com"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Lock className="h-4 w-4 text-indigo-600" aria-hidden="true" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Senha
           </label>
           <div className="relative">
+            <Lock
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
+              aria-hidden="true"
+            />
             <input
-              className="w-full pr-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="w-full pr-10 pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -86,20 +98,10 @@ const Register: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 rounded border-gray-300"
-            />
-            <span className="ml-2 select-none">Lembrar-me</span>
-          </label>
-
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-1 gap-2">
           <button
             type="button"
-            className="text-indigo-600 font-bold hover:underline"
+            className="text-indigo-600 font-bold hover:underline ml-auto"
             onClick={() => navigate("/login")}
           >
             Esqueci a senha
@@ -113,6 +115,14 @@ const Register: React.FC = () => {
           >
             Registrar
           </button>
+        </div>
+        <div className="text-center">
+          <Link
+            to="/login"
+            className="text-indigo-600 font-bold cursor-pointer hover:underline hover:text-indigo-800 transition-colors duration-200"
+          >
+            Voltar pra Login
+          </Link>
         </div>
       </form>
     </div>
