@@ -45,8 +45,11 @@ const Register: React.FC = () => {
       errs.push("Senha deve conter ao menos um caractere especial.");
 
     if (errs.length) {
-      // show validation errors via toast (plain text)
-      toast.error(errs.join("\n"));
+      toast.error(
+        <div className="whitespace-pre-line">
+          {errs.map((e) => `• ${e}`).join("\n")}
+        </div>
+      );
       return;
     }
 
