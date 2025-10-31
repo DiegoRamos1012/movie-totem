@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     console.log("Simulando login com", { email, password });
-    navigate("/");
+    navigate("/dashboard");
   }
 
   return (
@@ -33,7 +33,6 @@ const Login: React.FC = () => {
         <p className="text-center text-sm text-gray-500 mb-4">
           Acesse o painel de administração inserindo suas credenciais
         </p>
-        
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">

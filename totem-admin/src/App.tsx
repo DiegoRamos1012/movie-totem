@@ -2,11 +2,13 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { Suspense } from "react";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-blue-200 text-gray-800">
+        <Toaster position="top-right" />
         <header className="bg-blue-700/60 shadow-md relative">
           <div className="absolute left-0 top-0 h-full flex items-center pl-4">
             <span
@@ -24,9 +26,9 @@ export default function App() {
         </header>
 
         <main className="flex-1 py-10">
-            <Suspense fallback={<div>Carregando...</div>}>
-              <AppRoutes />
-            </Suspense>
+          <Suspense fallback={<div>Carregando...</div>}>
+            <AppRoutes />
+          </Suspense>
         </main>
 
         <footer className="py-6 text-center text-sm text-gray-500 mt-auto">

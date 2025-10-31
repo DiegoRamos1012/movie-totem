@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { User as UserIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { isEmailValid, validatePassword } from "@/utils/validators";
+import { toast } from "sonner";
+import { registerUser } from "@/services/authService";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -8,12 +12,54 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  // normalize different error shapes into a single message
+  function getErrorMessage(error: unknown): string {
+    const defaultMsg = "Erro no cadastro";
+    if (axios.isAxiosError(error)) {
+      const data = error.response?.data;
+      if (data && typeof data === "object" && "message" in data) {
+        const m = (data as Record<string, unknown>).message;
+        if (typeof m === "string" && m.trim().length) return m;
+      }
+      return typeof error.message === "string" ? error.message : defaultMsg;
+    }
+    if (error instanceof Error) return error.message;
+    const str = String(error);
+    return str || defaultMsg;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // aqui você chamaria a API de cadastro
-    console.log("Cadastrar:", { name, email, password });
-    navigate("/login");
+
+    const errs: string[] = [];
+    if (!name.trim()) errs.push("Nome é obrigatório.");
+    if (!isEmailValid(email)) errs.push("Email inválido.");
+
+    const pwRules = validatePassword(password);
+    if (!pwRules.minLength)
+      errs.push("Senha deve ter pelo menos 8 caracteres.");
+    if (!pwRules.hasNumber) errs.push("Senha deve conter ao menos um número.");
+    if (!pwRules.hasSpecialChar)
+      errs.push("Senha deve conter ao menos um caractere especial.");
+
+    if (errs.length) {
+      // show validation errors via toast (plain text)
+      toast.error(errs.join("\n"));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await registerUser({ name, email, password });
+      toast.success(res?.data?.message ?? "Cadastro realizado com sucesso");
+      navigate("/dashboard");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -111,11 +157,13 @@ const Register: React.FC = () => {
         <div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded transition-colors duration-200 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-2 rounded transition-colors duration-200 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60"
           >
-            Registrar
+            {loading ? "Registrando..." : "Registrar"}
           </button>
         </div>
+
         <div className="text-center">
           <Link
             to="/login"

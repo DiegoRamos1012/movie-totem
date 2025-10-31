@@ -1,5 +1,7 @@
 const Dashboard: React.FC = () => {
-  return null;
+    return (
+      <div className="text-center">Teste - Dashboard</div>
+  );
 };
 
 export default Dashboard;
