@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 
 export enum Roles {
   ADMIN = "Admin",
@@ -29,4 +29,11 @@ export class User {
     default: Roles.FUNCIONARIO,
   })
   role: string;
+
+  @Column({
+    name: "createdAt",
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  created_at: Date;
 }
