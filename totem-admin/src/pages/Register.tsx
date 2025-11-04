@@ -163,7 +163,7 @@ const Register: React.FC = () => {
             disabled={loading}
             className="w-full bg-indigo-600 text-white py-2 rounded transition-colors duration-200 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60"
           >
-            {loading ? "Registrando..." : "Registrar"}
+            {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
         </div>
 
