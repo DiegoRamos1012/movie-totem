@@ -19,18 +19,19 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const API_PREFIX = "/api";
 
 app.use(cors());
 app.use(compression());
 app.use(express.json()); // para requisições com JSON
 app.use(express.urlencoded({ extended: true })); // para formulários
-app.use("/api/auth", userRoutes);
-app.use("/movies", movieRoutes);
-app.use("/screenings", screeningRoutes);
-app.use("/theaters", theaterRoutes);
-app.use("/seats", seatRoutes);
-app.use("/snacks", snackRoutes);
-app.use("/tickets", ticketRoutes);
+app.use(`${API_PREFIX}/auth`, userRoutes);
+app.use(`${API_PREFIX}/movies`, movieRoutes);
+app.use(`${API_PREFIX}/screenings`, screeningRoutes);
+app.use(`${API_PREFIX}/theaters`, theaterRoutes);
+app.use(`${API_PREFIX}/seats`, seatRoutes);
+app.use(`${API_PREFIX}/snacks`, snackRoutes);
+app.use(`${API_PREFIX}/tickets`, ticketRoutes);
 
 // Rota de teste
 app.get("/health", (req, res) => {

@@ -4,7 +4,11 @@ import axios from "axios";
 import { User as UserIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { isEmailValid, validatePassword } from "@/utils/validators";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { registerUser } from "@/services/authService";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Field, FieldGroup, FieldSet, FieldLabel } from "@/components/ui/field";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -66,116 +70,118 @@ const Register: React.FC = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-3 text-center">
-        Cadastro
-      </h1>
-      <p className="text-center text-sm text-gray-500 mb-6">
-        Preencha os dados para criar sua conta
-      </p>
+    <div className="w-full max-w-md mx-auto mt-20 px-5">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-3 text-center">
+          Cadastro
+        </h1>
+        <p className="text-center text-sm text-gray-500 mb-5">
+          Preencha os dados para criar sua conta
+        </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nome
-          </label>
-          <div className="relative">
-            <UserIcon
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
-              aria-hidden="true"
-            />
-            <input
-              className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Seu nome"
-            />
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <FieldGroup>
+            <FieldSet>
+              <FieldLabel className="text-base">Nome</FieldLabel>
+              <Field>
+                <div className="relative">
+                  <UserIcon
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <Input
+                    className="pl-10"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    placeholder="Seu nome"
+                  />
+                </div>
+              </Field>
+            </FieldSet>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            E-mail
-          </label>
-          <div className="relative">
-            <Mail
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
-              aria-hidden="true"
-            />
-            <input
-              className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="seu@exemplo.com"
-            />
-          </div>
-        </div>
+            <FieldSet>
+              <FieldLabel className="text-base">E-mail</FieldLabel>
+              <Field>
+                <div className="relative">
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <Input
+                    className="pl-10"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="seu@exemplo.com"
+                  />
+                </div>
+              </Field>
+            </FieldSet>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Senha
-          </label>
-          <div className="relative">
-            <Lock
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400"
-              aria-hidden="true"
-            />
-            <input
-              className="w-full pr-10 pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-150"
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Eye className="h-5 w-5" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-        </div>
+            <FieldSet>
+              <div>
+                <FieldLabel className="text-base">Senha</FieldLabel>
+              </div>
+              <Field>
+                <div className="relative">
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <Input
+                    className="pl-10 pr-12"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                  />
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-1 gap-2">
-          <button
-            type="button"
-            className="text-indigo-600 font-bold hover:underline ml-auto"
-            onClick={() => navigate("/login")}
-          >
-            Esqueci a senha
-          </button>
-        </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full hover:bg-transparent focus-visible:bg-transparent active:bg-transparent"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-blue-500" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-blue-500" />
+                    )}
+                  </Button>
+                </div>
+              </Field>
+            </FieldSet>
+          </FieldGroup>
 
-        <div>
-          <button
+          <Button
+            size="lg"
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded transition-colors duration-200 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60"
+            className="w-full bg-indigo-600 text-white py-2 sm:py-3 rounded transition-colors duration-200 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60"
           >
+            {loading && <Spinner className="mr-2 h-4 w-4" aria-hidden="true" />}
             {loading ? "Cadastrando..." : "Cadastrar"}
-          </button>
-        </div>
+          </Button>
 
-        <div className="text-center">
-          <Link
-            to="/login"
-            className="text-indigo-600 font-bold cursor-pointer hover:underline hover:text-indigo-800 transition-colors duration-200"
-          >
-            Voltar pra Login
-          </Link>
-        </div>
-      </form>
+          <p className="text-center font-semibold text-sm text-gray-600">
+            Já possui uma conta?{" "}
+            <Link
+              to="/login"
+              className="text-indigo-600 hover:underline underline-offset-4"
+            >
+              Voltar pra Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

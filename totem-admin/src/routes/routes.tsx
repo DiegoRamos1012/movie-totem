@@ -1,25 +1,34 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { lazy } from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import Login from "@/pages/Login";
-import Register from "../pages/Register";
+import Register from "@/pages/Register";
 
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 
-
-/* Aplique Lazy a todas as páginas, exceto nas páginas Login e Register, por serem as páginas iniciais
-Lazy de exemplo: const Dashboard = lazy(() => import("../pages/Dashboard")); */
+function ProtectedLayout() {
+  const token = localStorage.getItem("token");
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
+}
 
 export default function AppRoutes() {
   return (
-    <Routes>  
-      {/* Rotas base do sistema */}
+    <Routes>
+      {/* Públicas */}
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-
-      {/* Rotas padrão do sistema */}
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+
+      {/* Privadas */}
+      <Route element={<ProtectedLayout />}>
+        <Route
+          path="/dashboard"
+          element={
+            <Suspense fallback={<div>Carregando...</div>}>
+              <Dashboard />
+            </Suspense>
+          }
+        />
+      </Route>
 
       {/* Redirecionamento padrão */}
       <Route path="*" element={<Navigate to="/" replace />} />

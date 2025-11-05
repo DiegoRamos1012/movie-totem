@@ -1,10 +1,31 @@
 // src/App.tsx
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Toaster } from "sonner";
+import { LogOut } from "lucide-react";
+import { Button } from "./components/ui/button";
 
 export default function App() {
+  const [authenticated, setAuthenticated] = useState<boolean>(
+    Boolean(localStorage.getItem("token"))
+  );
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "token") setAuthenticated(Boolean(e.newValue));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setAuthenticated(false);
+    window.location.href = "/login";
+  };
+
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-blue-200 text-gray-800">
@@ -20,8 +41,21 @@ export default function App() {
             </span>
           </div>
 
+          {/* botão Sair alinhado à direita, simétrico ao título */}
+          {authenticated && (
+            <div className="absolute right-0 top-0 h-full flex items-center pr-4">
+              <Button
+                onClick={handleLogout}
+                className="bg-blue-600 hover:bg-blue-800 text-white font-medium px-5 py-2 rounded flex items-center"
+              >
+                <LogOut className="w-5 h-5" aria-hidden="true" />
+                <span>Sair</span>
+              </Button>
+            </div>
+          )}
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-end items-center h-16"></div>
+            <div className="flex items-center h-16"></div>
           </div>
         </header>
 
