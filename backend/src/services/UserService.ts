@@ -17,6 +17,7 @@ export class UserService {
       throw new Error("Nome, email e senha são obrigatórios");
     }
 
+    // Apenas verifica se o e-mail já existe no banco (regra de unicidade)
     const existingEmail = await this.userRepository.findOne({
       where: { email },
     });

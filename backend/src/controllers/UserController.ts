@@ -4,11 +4,10 @@ import { signJwt } from "../utils/jwt";
 
 const userService = new UserService();
 
-// TODO: Adicionar regra de negócio de email e senha
-
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
+
     const user = await userService.registerUser({
       name,
       email,

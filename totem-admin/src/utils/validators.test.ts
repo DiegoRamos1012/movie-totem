@@ -1,5 +1,13 @@
-import { validateEmail, validatePassword } from "./validators";
-import { describe, test, expect } from "vitest";
+import {
+  validateEmail,
+  validatePassword,
+  checkEmailExists,
+} from "./validators";
+import { describe, test, expect, vi, beforeEach } from "vitest";
+import axios from "axios";
+
+vi.mock("axios");
+const mockedAxiosGet = vi.mocked(axios.get);
 
 // ==========================
 // 🧩 Testes de Validação de Email
@@ -52,5 +60,35 @@ describe("Validação de senha", () => {
   test("- Falha se a senha não tiver caracter especial", () => {
     const result = validatePassword("exemplo1");
     expect(result.hasSpecialChar).toBeFalsy();
+  });
+});
+
+// ==========================
+// ✅ Testes para checkEmailExists
+// ==========================
+describe("checkEmailExists", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("- Retorna true quando o servidor indica que o e-mail existe", async () => {
+    mockedAxiosGet.mockResolvedValueOnce({ data: { exists: true } });
+    const res = await checkEmailExists("exemplo@teste.com");
+    expect(res).toBe(true);
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test("- Retorna false quando o servidor indica que o e-mail não existe", async () => {
+    mockedAxiosGet.mockResolvedValueOnce({ data: { exists: false } });
+    const res = await checkEmailExists("novo@teste.com");
+    expect(res).toBe(false);
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test("- Em caso de erro, retorna false", async () => {
+    mockedAxiosGet.mockRejectedValueOnce(new Error("network"));
+    const res = await checkEmailExists("erro@teste.com");
+    expect(res).toBe(false);
+    expect(axios.get).toHaveBeenCalled();
   });
 });

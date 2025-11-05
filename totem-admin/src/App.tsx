@@ -29,7 +29,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-blue-200 text-gray-800">
-        <Toaster position="top-right" />
+        {/* ✅ Toaster estilizado (Sonner) */}
+        <Toaster
+          position="top-right"
+          richColors
+          toastOptions={{
+            className:
+              "rounded-lg shadow-md border border-gray-200 bg-white text-gray-800 px-4 py-3 font-medium text-sm",
+            duration: 3500,
+          }}
+        />
+
         <header className="bg-blue-700/60 shadow-md relative">
           <div className="absolute left-0 top-0 h-full flex items-center pl-4">
             <span
@@ -41,12 +51,12 @@ export default function App() {
             </span>
           </div>
 
-          {/* botão Sair alinhado à direita, simétrico ao título */}
+          {/* botão Sair alinhado à direita */}
           {authenticated && (
             <div className="absolute right-0 top-0 h-full flex items-center pr-4">
               <Button
                 onClick={handleLogout}
-                className="bg-blue-600 hover:bg-blue-800 text-white font-medium px-5 py-2 rounded flex items-center"
+                className="bg-blue-600 hover:bg-blue-800 text-white font-medium px-5 py-2 rounded flex items-center gap-2"
               >
                 <LogOut className="w-5 h-5" aria-hidden="true" />
                 <span>Sair</span>
@@ -66,7 +76,7 @@ export default function App() {
         </main>
 
         <footer className="py-6 text-center text-sm text-gray-500 mt-auto">
-          <p>&copy; {new Date().getFullYear()} Cinemania</p>
+          <p>&copy; {new Date().getFullYear()} Cinemania - Github: Diego1012</p>
         </footer>
       </div>
     </BrowserRouter>

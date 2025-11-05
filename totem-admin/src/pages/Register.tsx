@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { User as UserIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { isEmailValid, validatePassword } from "@/utils/validators";
+import { validatePassword, validateEmailAsync } from "@/utils/validators";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { registerUser } from "@/services/authService";
@@ -39,7 +39,10 @@ const Register: React.FC = () => {
 
     const errs: string[] = [];
     if (!name.trim()) errs.push("Nome é obrigatório.");
-    if (!isEmailValid(email)) errs.push("Email inválido.");
+    const emailRules = await validateEmailAsync(email);
+    if (!emailRules.hasAt || !emailRules.endsWithCom)
+      errs.push("Email inválido.");
+    if (emailRules.exists) errs.push("Email já cadastrado.");
 
     const pwRules = validatePassword(password);
     if (!pwRules.minLength)

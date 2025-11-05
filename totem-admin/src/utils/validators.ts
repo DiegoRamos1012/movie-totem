@@ -1,3 +1,5 @@
+import axios from "axios";
+
 /**
  * Validadores do sistema
  *
@@ -40,3 +42,28 @@ export const isPasswordValid = (password: string): boolean => {
   // every(Boolean) retorna true se todas as regras forem verdadeiras, false caso contrário
   return Object.values(rules).every(Boolean);
 };
+
+// Verifica no backend se o e-mail já está cadastrado.
+// Retorna true quando o e-mail existe (ou seja, não pode ser usado para novo cadastro).
+export const checkEmailExists = async (email: string): Promise<boolean> => {
+  try {
+    const base =
+      (import.meta.env.VITE_API_URL as string) ?? "http://localhost:4000";
+    const res = await axios.get(`${base}/api/auth/check-email`, {
+      params: { email },
+    });
+    return Boolean(res.data?.exists);
+  } catch (err) {
+    console.error("Erro ao verificar e-mail no servidor:", err);
+    return false;
+  }
+};
+
+// Validação assíncrona que combina regras locais e verificação no servidor
+export const validateEmailAsync = async (email: string) => {
+  const base = validateEmail(email);
+  const exists = await checkEmailExists(email);
+  return { ...base, exists };
+};
+
+export default {};
