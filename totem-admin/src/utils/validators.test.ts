@@ -66,7 +66,7 @@ describe("Validação de senha", () => {
 // ==========================
 // ✅ Testes para checkEmailExists
 // ==========================
-describe("checkEmailExists", () => {
+describe("- Verifica se o Email existe ", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
