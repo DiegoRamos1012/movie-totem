@@ -7,11 +7,15 @@ import { LogOut } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { AuthProvider } from "@/contexts/AuthContext";
 import useAuth from "@/hooks/useAuth";
+import { Navbar } from "./components/ui/navbar";
+import Profile from "./pages/Management/Profile";
 
 export default function App() {
+  // Header visível apenas para usuários autenticados
   const AuthHeader = () => {
     const { user, logout } = useAuth();
     if (!user) return null;
+
     return (
       <div className="absolute right-0 top-0 h-full flex items-center pr-4">
         <Button
@@ -28,11 +32,34 @@ export default function App() {
     );
   };
 
+  // Navbar centralizada e exibida apenas se autenticado
+  const AuthNavbar = () => {
+    const { user } = useAuth();
+    if (!user) return null;
+
+    return (
+      <div className="absolute inset-x-0 top-0 h-full flex justify-center items-center">
+        <Navbar />
+      </div>
+    );
+  };
+
+  const AuthProfile = () => {
+    const { user } = useAuth();
+    if (!user) return null;
+
+    return (
+      <div className="absolute inset-x-0 top-0 h-full flex justify-center items-center">
+        <Profile />
+      </div>
+    );
+  };
+
   return (
     <AuthProvider>
       <BrowserRouter>
         <div className="min-h-screen flex flex-col bg-blue-200 text-gray-800">
-          {/* ✅ Toaster estilizado (Sonner) */}
+          {/* ✅ Toaster (Sonner) */}
           <Toaster
             position="top-right"
             richColors
@@ -45,6 +72,7 @@ export default function App() {
           />
 
           <header className="bg-blue-700/60 shadow-md relative">
+            {/* Logotipo/Título à esquerda */}
             <div className="absolute left-0 top-0 h-full flex items-center pl-4">
               <span
                 aria-hidden="true"
@@ -55,6 +83,12 @@ export default function App() {
               </span>
             </div>
 
+            {/* Navbar central */}
+            <AuthNavbar />
+
+            <AuthProfile />
+
+            {/* Botão de Logout à direita */}
             <AuthHeader />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,7 +104,7 @@ export default function App() {
 
           <footer className="py-6 text-center text-sm text-gray-500 mt-auto">
             <p>
-              &copy; {new Date().getFullYear()} Cinemania - Github: Diego1012
+              &copy; {new Date().getFullYear()} Cinemania — Github: Diego1012
             </p>
           </footer>
         </div>
