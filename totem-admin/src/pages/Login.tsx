@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authUser } from "@/services/authService";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
+import useAuth from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,6 +11,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,14 +22,10 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const { user, token } = await authUser({ email, password });
+      const { user, token } = await login(email, password);
 
       if (user && token) {
         toast.success(`Bem-vindo de volta, ${user.name}!`);
-
-        // Armazena token e dados do usuário
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
 
         navigate("/dashboard");
       } else {
@@ -36,12 +33,33 @@ const Login: React.FC = () => {
       }
     } catch (error: unknown) {
       if (isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message ??
-            "Erro ao autenticar. Tente novamente."
-        );
+        const status = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        const serverErrors = error.response?.data?.errors;
+
+        // Mensagens amigáveis por status
+        let friendly = "Erro ao autenticar. Tente novamente.";
+
+        if (!error.response) {
+          friendly =
+            "Não foi possível conectar ao servidor. Verifique sua conexão.";
+        } else if (status === 401) {
+          friendly = "E-mail ou senha incorretos. Verifique e tente novamente.";
+        } else if (status === 400 || status === 422) {
+          if (Array.isArray(serverErrors) && serverErrors.length) {
+            friendly = serverErrors.map((s: string) => `• ${s}`).join("\n");
+          } else {
+            friendly = serverMessage ?? "Dados inválidos. Verifique os campos.";
+          }
+        } else if (status && status >= 500) {
+          friendly = "Erro no servidor. Tente novamente mais tarde.";
+        } else {
+          friendly = serverMessage ?? friendly;
+        }
+
+        toast.error(<div className="whitespace-pre-line">{friendly}</div>);
       } else {
-        toast.error("Erro ao autenticar. Tente novamente.");
+        toast.error("Ocorreu um erro. Tente novamente.");
       }
     } finally {
       setLoading(false);
@@ -51,9 +69,7 @@ const Login: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto mt-25 px-5">
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-semibold mb-3 text-center">
-          Entrar
-        </h1>
+        <h1 className="text-2xl font-semibold mb-3 text-center">Entrar</h1>
         <p className="text-muted-foreground text-center text-sm mb-3">
           Insira seus dados para entrar no sistema
         </p>
