@@ -20,7 +20,7 @@ export default function App() {
         <Link to="/profile">
           <Button
             variant="ghost"
-            className="text-white hover:bg-white/5 flex items-center gap-2"
+            className="text-white flex items-center gap-2"
           >
             <User className="w-4 h-4" />
             <span>{user?.name ? String(user.name) : "Perfil"}</span>
