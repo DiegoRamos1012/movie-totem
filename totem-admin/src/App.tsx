@@ -1,14 +1,13 @@
 // src/App.tsx
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Link } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { AuthProvider } from "@/contexts/AuthContext";
-import useAuth from "@/hooks/useAuth";
 import { Navbar } from "./components/ui/navbar";
-import Profile from "./pages/Management/Profile";
+import useAuth from "@/hooks/useAuth";
 
 export default function App() {
   // Header visível apenas para usuários autenticados
@@ -17,13 +16,24 @@ export default function App() {
     if (!user) return null;
 
     return (
-      <div className="absolute right-0 top-0 h-full flex items-center pr-4">
+      <div className="absolute right-0 top-0 h-full flex items-center pr-4 gap-3">
+        <Link to="/profile">
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/5 flex items-center gap-2"
+          >
+            <User className="w-4 h-4" />
+            <span>{user?.name ? String(user.name) : "Perfil"}</span>
+          </Button>
+        </Link>
+
         <Button
+          variant={"ghost"}
           onClick={() => {
             logout();
             window.location.href = "/login";
           }}
-          className="bg-blue-600 hover:bg-blue-800 text-white font-medium px-5 py-2 rounded flex items-center gap-2"
+          className=" text-white font-medium px-5 py-2 rounded flex items-center gap-2"
         >
           <LogOut className="w-5 h-5" aria-hidden="true" />
           <span>Sair</span>
@@ -32,7 +42,6 @@ export default function App() {
     );
   };
 
-  // Navbar centralizada e exibida apenas se autenticado
   const AuthNavbar = () => {
     const { user } = useAuth();
     if (!user) return null;
@@ -40,17 +49,6 @@ export default function App() {
     return (
       <div className="absolute inset-x-0 top-0 h-full flex justify-center items-center">
         <Navbar />
-      </div>
-    );
-  };
-
-  const AuthProfile = () => {
-    const { user } = useAuth();
-    if (!user) return null;
-
-    return (
-      <div className="absolute inset-x-0 top-0 h-full flex justify-center items-center">
-        <Profile />
       </div>
     );
   };
@@ -85,8 +83,6 @@ export default function App() {
 
             {/* Navbar central */}
             <AuthNavbar />
-
-            <AuthProfile />
 
             {/* Botão de Logout à direita */}
             <AuthHeader />

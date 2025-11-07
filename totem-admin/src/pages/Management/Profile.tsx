@@ -11,12 +11,8 @@ export default function Profile() {
   const [name, setName] = useState<string>(() => String(user?.name ?? ""));
   const [email, setEmail] = useState<string>(() => String(user?.email ?? ""));
 
-  const displayName = name || String(user?.name ?? "Usuário");
-  const displayEmail = String(user?.email ?? email ?? "-");
-  const displayRole = String(user?.role ?? "Administrador");
-
   const handleSave = () => {
-    // Provisório: salva localmente apenas e sai do modo de edição.
+    // Provisório: atualiza somente o estado local.
     setEditing(false);
   };
 
@@ -26,8 +22,10 @@ export default function Profile() {
         <h1 className="text-2xl font-semibold mb-4">Perfil</h1>
 
         <div className="flex items-center gap-6">
-          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
-            {displayName.charAt(0).toUpperCase()}
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
+            {(
+              (name || String(user?.name) || "Usuário").charAt(0) || "U"
+            ).toUpperCase()}
           </div>
 
           <div className="flex-1">
@@ -39,28 +37,33 @@ export default function Profile() {
                   </label>
                   <Input
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setName(e.target.value)
+                    }
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     E-mail
                   </label>
                   <Input
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setEmail(e.target.value)
+                    }
                   />
                 </div>
               </div>
             ) : (
               <div>
-                <div className="text-lg font-medium">{displayName}</div>
+                <div className="text-lg font-medium">
+                  {name || String(user?.name) || "Usuário"}
+                </div>
                 <div className="text-sm text-muted-foreground">
-                  {displayEmail}
+                  {email || String(user?.email) || "-"}
                 </div>
                 <div className="text-sm text-gray-500 mt-2">
-                  Papel: {displayRole}
+                  Papel: {String(user?.role ?? "Administrador")}
                 </div>
               </div>
             )}
