@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, Timestamp } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum Roles {
-  ADMIN = "Admin",
-  GERENTE = "Gerente",
-  FUNCIONARIO = "Funcionário",
+  ADMIN = "admin",
+  GERENTE = "gerente",
+  FUNCIONARIO = "funcionario",
 }
 
 @Entity()

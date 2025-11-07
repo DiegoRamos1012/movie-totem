@@ -1,4 +1,4 @@
-import { MovieRating, type Movie } from "../../types/types";
+import { MovieRating, MovieStatus, type Movie } from "../../types/types";
 
 export const mockMovies: Movie[] = [
   {
@@ -13,6 +13,7 @@ export const mockMovies: Movie[] = [
     rating: MovieRating.DEZESSEIS,
     releaseDate: new Date("2023-05-12"),
     posterUrl: "https://picsum.photos/60?random=1",
+    movieStatus: MovieStatus.EM_EXIBICAO,
     active: true,
   },
   {
@@ -27,9 +28,10 @@ export const mockMovies: Movie[] = [
     rating: MovieRating.DEZOITO,
     releaseDate: new Date("2024-02-18"),
     posterUrl: "https://picsum.photos/60?random=2",
+    movieStatus: MovieStatus.FORA_DE_CARTAZ,
     active: true,
   },
-  {
+  { 
     id: 3,
     name: "Comédia do Bairro",
     originalName: "Neighborhood Comedy",
@@ -41,6 +43,7 @@ export const mockMovies: Movie[] = [
     rating: MovieRating.LIVRE,
     releaseDate: new Date("2022-11-05"),
     posterUrl: "https://picsum.photos/60?random=3",
+    movieStatus: MovieStatus.PRE_VENDA,
     active: false,
   },
 ];

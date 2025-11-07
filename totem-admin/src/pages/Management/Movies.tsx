@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
-import { MovieRating } from "../../../types/types";
+import { MovieRating, MovieStatusLabel } from "../../../types/types";
 import { mockMovies } from "@/mockedData/mockedMovies";
 import {
   Table,
@@ -11,6 +11,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { formatDate } from "@/utils/formatters";
 
 function ratingLabel(r: MovieRating) {
   return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
@@ -22,6 +23,7 @@ type SortField =
   | "duration"
   | "rating"
   | "releaseDate"
+  | "movieStatus"
   | "active"
   | null;
 
@@ -143,7 +145,7 @@ export default function Movies() {
                   {sortField === "name" && (sortDir === "asc" ? " ▲" : " ▼")}
                 </button>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-60">
                 <button
                   onClick={() => toggleSort("year")}
                   className="flex items-center gap-2"
@@ -171,6 +173,15 @@ export default function Movies() {
                   {sortField === "rating" && (sortDir === "asc" ? " ▲" : " ▼")}
                 </button>
               </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => toggleSort("duration")}
+                  className="flex items-center gap-2"
+                >
+                  Status{" "}
+                </button>
+              </TableHead>
+
               <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -186,9 +197,10 @@ export default function Movies() {
                   />
                 </TableCell>
                 <TableCell>{m.name}</TableCell>
-                <TableCell>{m.releaseDate.toLocaleDateString()}</TableCell>
+                <TableCell>{formatDate(m.releaseDate)}</TableCell>
                 <TableCell>{m.duration} min</TableCell>
                 <TableCell>{ratingLabel(m.rating)}</TableCell>
+                <TableCell>{MovieStatusLabel[m.movieStatus]}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Link

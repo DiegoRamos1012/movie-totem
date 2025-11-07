@@ -41,7 +41,7 @@ const Register: React.FC = () => {
     if (!name.trim()) errs.push("Nome é obrigatório.");
     const emailRules = await validateEmailAsync(email);
     if (!emailRules.hasAt || !emailRules.endsWithCom)
-      errs.push("Email inválido.");
+      errs.push("Email inválido");
     if (emailRules.exists) errs.push("Email já cadastrado.");
 
     const pwRules = validatePassword(password);

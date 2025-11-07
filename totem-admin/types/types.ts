@@ -1,7 +1,7 @@
 export enum Roles {
-  ADMIN = "Admin",
-  GERENTE = "Gerente",
-  FUNCIONARIO = "Funcionário",
+  ADMIN = "admin",
+  GERENTE = "gerente",
+  FUNCIONARIO = "funcionario",
 }
 
 export enum MovieRating {
@@ -12,6 +12,17 @@ export enum MovieRating {
   DEZESSEIS = 16,
   DEZOITO = 18,
 }
+export enum MovieStatus {
+  EM_EXIBICAO = "em_exibicao",
+  PRE_VENDA = "pre_venda",
+  FORA_DE_CARTAZ = "fora_de_cartaz",
+}
+
+export const MovieStatusLabel: Record<MovieStatus, string> = {
+  [MovieStatus.EM_EXIBICAO]: "Em Exibição",
+  [MovieStatus.PRE_VENDA]: "Pré-venda",
+  [MovieStatus.FORA_DE_CARTAZ]: "Fora de Cartaz",
+};
 
 export interface User {
   id: number;
@@ -34,5 +45,6 @@ export interface Movie {
   rating: MovieRating;
   releaseDate: Date;
   posterUrl: string;
+  movieStatus: MovieStatus;
   active: boolean;
 }
