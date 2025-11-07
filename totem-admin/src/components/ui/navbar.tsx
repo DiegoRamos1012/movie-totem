@@ -10,6 +10,7 @@ const items = [
   { to: "/theaters", label: "Salas" },
   { to: "/tickets", label: "Ingressos" },
   { to: "/snacks", label: "Alimentos" },
+  { to: "/admin", label: "Administração" },
 ];
 
 export function Navbar() {

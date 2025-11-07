@@ -10,6 +10,7 @@ const Screenings = lazy(() => import("../pages/Management/Screenings"));
 const Theaters = lazy(() => import("../pages/Management/Theaters"));
 const Tickets = lazy(() => import("../pages/Management/Tickets"));
 const Snacks = lazy(() => import("../pages/Management/Snacks"));
+const AdminPanel = lazy(() => import("../pages/Management/AdminPanel"));
 
 function ProtectedLayout() {
   const token = localStorage.getItem("token");
@@ -71,6 +72,14 @@ export default function AppRoutes() {
           element={
             <Suspense fallback={<div>Carregando...</div>}>
               <Snacks />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<div>Carregando...</div>}>
+              <AdminPanel />
             </Suspense>
           }
         />
