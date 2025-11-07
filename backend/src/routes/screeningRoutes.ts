@@ -8,6 +8,7 @@ import {
   deactivateScreening,
   getScreeningsByMovie,
 } from "../controllers/ScreeningController.js";
+import { auth } from "../middlewares/auth";
 
 const router = Router();
 
@@ -21,11 +22,11 @@ router.get("/movie/:movieId", getScreeningsByMovie);
 router.get("/:id", getScreeningById);
 
 /* Rotas de criação e atualização */
-router.post("/", addScreening);
-router.put("/:id", updateScreening);
+router.post("/", auth, addScreening);
+router.put("/:id", auth, updateScreening);
 
 /* Rotas de ativação/desativação */
-router.patch("/:id/activate", activateScreening);
-router.patch("/:id/deactivate", deactivateScreening);
+router.patch("/:id/activate", auth, activateScreening);
+router.patch("/:id/deactivate", auth, deactivateScreening);
 
 export default router;

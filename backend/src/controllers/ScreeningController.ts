@@ -145,7 +145,11 @@ export const updateScreening = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedScreening = await screeningService.update(id, req.body);
+    const performedBy = (req as any).usuario;
+    const updatedScreening = await screeningService.update(id, req.body, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (!updatedScreening) {
       return res.status(404).json({ message: "Sessão não encontrada" });
@@ -173,7 +177,11 @@ export const activateScreening = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID de sessão inválido" });
     }
 
-    const result = await screeningService.activate(id);
+    const performedBy = (req as any).usuario;
+    const result = await screeningService.activate(id, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (result === false) {
       return res.status(404).json({ message: "Sessão não encontrada" });
@@ -202,7 +210,11 @@ export const deactivateScreening = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID de sessão inválido" });
     }
 
-    const result = await screeningService.deactivate(id);
+    const performedBy = (req as any).usuario;
+    const result = await screeningService.deactivate(id, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (result === false) {
       return res.status(404).json({ message: "Sessão não encontrada" });

@@ -3,19 +3,18 @@ import { MovieService } from "../services/MovieService.js";
 
 const movieService = new MovieService();
 
- /* Lista todos os filmes ativos do sistema */
+/* Lista todos os filmes ativos do sistema */
 export const getMovies = async (req: Request, res: Response) => {
   try {
     const movies = await movieService.findAll();
 
     if (movies.length === 0) {
-      console.log("Nenhum filme foi cadastrado no banco de dados")
+      console.log("Nenhum filme foi cadastrado no banco de dados");
       return res.status(200).json({
         message: "Nenhum filme foi cadastrado",
-        data: []
-      })
+        data: [],
+      });
     }
-
 
     return res.status(200).json(movies);
   } catch (error: any) {
@@ -87,7 +86,11 @@ export const updateMovie = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedMovie = await movieService.update(id, req.body);
+    const performedBy = (req as any).usuario;
+    const updatedMovie = await movieService.update(id, req.body, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (!updatedMovie) {
       return res.status(404).json({ message: "Filme não encontrado" });
@@ -115,7 +118,11 @@ export const activateMovie = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID de filme inválido" });
     }
 
-    const result = await movieService.activate(id);
+    const performedBy = (req as any).usuario;
+    const result = await movieService.activate(id, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (result === false) {
       return res.status(404).json({ message: "Filme não encontrado" });
@@ -144,7 +151,11 @@ export const deactivateMovie = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "ID de filme inválido" });
     }
 
-    const result = await movieService.deactivate(id);
+    const performedBy = (req as any).usuario;
+    const result = await movieService.deactivate(id, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
 
     if (result === false) {
       return res.status(404).json({ message: "Filme não encontrado" });
@@ -161,5 +172,36 @@ export const deactivateMovie = async (req: Request, res: Response) => {
       message: "Erro ao desativar filme",
       error: error.message,
     });
+  }
+};
+
+/* Soft-delete (marca active = false) */
+export const deleteMovie = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || "");
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: "ID de filme inválido" });
+    }
+
+    const performedBy = (req as any).usuario;
+
+    const result = await movieService.delete(id, {
+      id: performedBy?.id,
+      name: performedBy?.name,
+    });
+
+    if (!result) {
+      return res.status(404).json({ message: "Filme não encontrado" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Filme removido (soft-delete) com sucesso" });
+  } catch (error: any) {
+    console.error(`Erro ao remover filme: ${error}`);
+    return res
+      .status(500)
+      .json({ message: "Erro ao remover filme", error: error.message });
   }
 };

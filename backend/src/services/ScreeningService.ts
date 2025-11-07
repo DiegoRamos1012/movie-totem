@@ -1,8 +1,10 @@
 import { AppDataSource } from "../config/database.js";
 import { Screening } from "../models/Screening.js";
+import { ScreeningAudit } from "../models/ScreeningAudit.js";
 
 export class ScreeningService {
   private screeningRepository = AppDataSource.getRepository(Screening);
+  private auditRepository = AppDataSource.getRepository(ScreeningAudit);
 
   async findAll(): Promise<Screening[]> {
     const screenings = await this.screeningRepository
@@ -158,7 +160,8 @@ export class ScreeningService {
 
   async update(
     id: number,
-    data: Partial<Screening>
+    data: Partial<Screening>,
+    performedBy?: { id?: number; name?: string }
   ): Promise<Screening | null> {
     const screening = await this.screeningRepository.findOneBy({ id });
 
@@ -175,7 +178,23 @@ export class ScreeningService {
       await this.validateTimeConflict(theaterId, screeningDate, startTime, id);
     }
 
+    const prevActive = screening.active;
+
     await this.screeningRepository.update(id, data);
+
+    // log active change
+    if (typeof data.active === "boolean" && data.active !== prevActive) {
+      const audit = this.auditRepository.create({
+        screeningId: id,
+        action: data.active ? "activate" : "deactivate",
+        previousValue: String(prevActive),
+        newValue: String(data.active),
+        performedById: performedBy?.id,
+        performedByName: performedBy?.name,
+      });
+
+      await this.auditRepository.save(audit);
+    }
 
     const updatedScreening = await this.screeningRepository
       .createQueryBuilder("screening")
@@ -204,7 +223,10 @@ export class ScreeningService {
     return updatedScreening;
   }
 
-  async activate(id: number): Promise<boolean | "already_active"> {
+  async activate(
+    id: number,
+    performedBy?: { id?: number; name?: string }
+  ): Promise<boolean | "already_active"> {
     const screening = await this.screeningRepository.findOneBy({ id });
 
     if (!screening) {
@@ -219,11 +241,24 @@ export class ScreeningService {
 
     await this.screeningRepository.update(id, { active: true });
 
+    const audit = this.auditRepository.create({
+      screeningId: id,
+      action: "activate",
+      previousValue: String(screening.active),
+      newValue: String(true),
+      performedById: performedBy?.id,
+      performedByName: performedBy?.name,
+    });
+    await this.auditRepository.save(audit);
+
     console.log(`🟢 Sessão ID ${id} ativada com sucesso`);
     return true;
   }
 
-  async deactivate(id: number): Promise<boolean | "already_inactive"> {
+  async deactivate(
+    id: number,
+    performedBy?: { id?: number; name?: string }
+  ): Promise<boolean | "already_inactive"> {
     const screening = await this.screeningRepository.findOneBy({ id });
 
     if (!screening) {
@@ -237,6 +272,16 @@ export class ScreeningService {
     }
 
     await this.screeningRepository.update(id, { active: false });
+
+    const audit = this.auditRepository.create({
+      screeningId: id,
+      action: "deactivate",
+      previousValue: String(screening.active),
+      newValue: String(false),
+      performedById: performedBy?.id,
+      performedByName: performedBy?.name,
+    });
+    await this.auditRepository.save(audit);
 
     console.log(`🔴 Sessão ID ${id} desativada com sucesso`);
     return true;

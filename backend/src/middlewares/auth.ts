@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AppDataSource } from "../src/config/database.js";
-import { User } from "../src/models/User.js";
+import { AppDataSource } from "../config/database.js";
+import { User } from "../models/User.js";
 
 export async function auth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
@@ -12,14 +12,11 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
   }
 
   try {
-    // Verifica se o token é válido
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
 
-    // Garantir que o objeto usuario tenha id e name; se name ausente, buscar no DB
     const userPayload = { ...(decoded as object) } as any;
 
     if (!userPayload.name && userPayload.id) {
-      // Busca no DB
       try {
         const userRepo = AppDataSource.getRepository(User);
         const user = await userRepo.findOneBy({ id: Number(userPayload.id) });
@@ -27,7 +24,6 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
           userPayload.name = user.name;
         }
       } catch (e) {
-        // se algo falhar na busca, não bloqueia; apenas prossegue com o payload
         console.warn(
           "auth middleware: não foi possível buscar nome do usuário",
           e
@@ -36,9 +32,10 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
     }
 
     (req as any).usuario = userPayload;
-
-    next(); // prossegue para a rota
+    next();
   } catch (err) {
     return res.status(403).json({ message: "Token inválido ou expirado" });
   }
 }
+
+export default auth;

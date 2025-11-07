@@ -6,7 +6,9 @@ import {
   updateMovie,
   activateMovie,
   deactivateMovie,
+  deleteMovie,
 } from "../controllers/MovieController.js";
+import { auth } from "../middlewares/auth";
 
 const router = Router();
 
@@ -15,11 +17,12 @@ router.get("/", getMovies);
 router.get("/:id", getMovieById);
 
 /* Rotas de criação e atualização */
-router.post("/", addMovie);
-router.put("/:id", updateMovie);
+router.post("/", auth, addMovie);
+router.put("/:id", auth, updateMovie);
 
 /* Rotas de ativação/desativação */
-router.patch("/:id/activate", activateMovie);
-router.patch("/:id/deactivate", deactivateMovie);
+router.patch("/:id/activate", auth, activateMovie);
+router.patch("/:id/deactivate", auth, deactivateMovie);
+router.delete("/:id", auth, deleteMovie);
 
 export default router;

@@ -10,6 +10,12 @@ export enum MovieRating {
   DEZOITO = 18,
 }
 
+export enum MovieStatus {
+  EM_EXIBICAO = "em_exibicao",
+  PRE_VENDA = "pre_venda",
+  FORA_DE_CARTAZ = "fora_de_cartaz",
+}
+
 @Entity()
 export class Movie {
   @PrimaryGeneratedColumn()
@@ -44,6 +50,9 @@ export class Movie {
 
   @Column({ name: "poster_url", type: "varchar", length: 500, nullable: true })
   posterUrl: string;
+
+  @Column({ name: "status", type: "enum", enum: MovieStatus, nullable: true, default: MovieStatus.FORA_DE_CARTAZ })
+  movieStatus: MovieStatus;
 
   @Column({ type: "boolean", default: true })
   active: boolean;
