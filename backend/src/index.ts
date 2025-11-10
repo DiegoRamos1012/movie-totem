@@ -10,7 +10,7 @@ import theaterRoutes from "./routes/theaterRoutes.js";
 import snackRoutes from "./routes/snackRoutes.js";
 import seatRoutes from "./routes/seatRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
-import userRoutes from "./routes/userRoutes.js"
+import userRoutes from "./routes/userRoutes.js";
 import { AppDataSource } from "./config/database.js";
 import { ScreeningJobs } from "./jobs/ScreeningJobs.js";
 
@@ -75,5 +75,5 @@ AppDataSource.initialize()
     });
   })
   .catch((error) => {
-    console.error(chalk.red("❌ Erro ao conectar com banco:"), error);
+    console.error(chalk.red(`❌ Erro ao conectar com banco: ${error}`));
   });
