@@ -20,7 +20,7 @@ export enum MovieStatus {
 
 export const MovieStatusLabel: Record<MovieStatus, string> = {
   [MovieStatus.EM_EXIBICAO]: "Em Exibição",
-  [MovieStatus.PRE_VENDA]: "Pré-venda",
+  [MovieStatus.PRE_VENDA]: "Em Pré-venda",
   [MovieStatus.FORA_DE_CARTAZ]: "Fora de Cartaz",
 };
 

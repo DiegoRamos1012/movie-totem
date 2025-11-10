@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/utils/formatters";
+import { Label } from "@/components/ui/label";
 
 function ratingLabel(r: MovieRating) {
   return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
@@ -116,7 +117,7 @@ export default function Movies() {
           />
 
           <div className="flex items-center gap-2">
-            <label className="text-sm">Exibir</label>
+            <Labe className="text-sm">Exibir</Labe>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -135,7 +136,7 @@ export default function Movies() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="flex items-center gap-2">Pôster</TableHead>
+              <TableHead className="flex items-center">Imagem de Cartaz</TableHead>
               <TableHead>
                 <button
                   onClick={() => toggleSort("name")}
@@ -145,7 +146,7 @@ export default function Movies() {
                   {sortField === "name" && (sortDir === "asc" ? " ▲" : " ▼")}
                 </button>
               </TableHead>
-              <TableHead className="w-60">
+              <TableHead className="w-70">
                 <button
                   onClick={() => toggleSort("year")}
                   className="flex items-center gap-2"
@@ -164,16 +165,16 @@ export default function Movies() {
                     (sortDir === "asc" ? " ▲" : " ▼")}
                 </button>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-50">
                 <button
                   onClick={() => toggleSort("rating")}
                   className="flex items-center gap-2"
                 >
-                  Class.
+                  Classificação Indic.
                   {sortField === "rating" && (sortDir === "asc" ? " ▲" : " ▼")}
                 </button>
               </TableHead>
-              <TableHead>
+              <TableHead className="">
                 <button
                   onClick={() => toggleSort("duration")}
                   className="flex items-center gap-2"
@@ -182,7 +183,7 @@ export default function Movies() {
                 </button>
               </TableHead>
 
-              <TableHead>Ações</TableHead>
+              <TableHead className="w-50">Ações</TableHead>
             </TableRow>
           </TableHeader>
 

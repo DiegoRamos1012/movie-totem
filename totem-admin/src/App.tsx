@@ -3,8 +3,9 @@ import { BrowserRouter, Link } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { Button } from "./components/ui/button";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Navbar } from "./components/ui/navbar";
 import useAuth from "@/hooks/useAuth";
@@ -14,16 +15,17 @@ export default function App() {
   const AuthHeader = () => {
     const { user, logout } = useAuth();
     if (!user) return null;
-
     return (
-      <div className="absolute right-0 top-0 h-full flex items-center pr-4 gap-3">
+      <div className="hidden md:flex absolute right-0 top-0 h-full items-center pr-4 gap-3">
         <Link to="/profile">
           <Button
             variant="ghost"
             className="text-white flex items-center gap-2"
           >
             <User className="w-4 h-4" />
-            <span>{user?.name ? String(user.name) : "Perfil"}</span>
+            <span className="hidden sm:inline">
+              {user?.name ? String(user.name) : "Perfil"}
+            </span>
           </Button>
         </Link>
 
@@ -33,10 +35,10 @@ export default function App() {
             logout();
             window.location.href = "/login";
           }}
-          className=" text-white font-medium px-5 py-2 rounded flex items-center gap-2"
+          className=" text-white font-medium px-3 py-2 rounded flex items-center gap-2"
         >
           <LogOut className="w-5 h-5" aria-hidden="true" />
-          <span>Sair</span>
+          <span className="hidden sm:inline">Sair</span>
         </Button>
       </div>
     );
@@ -47,8 +49,59 @@ export default function App() {
     if (!user) return null;
 
     return (
-      <div className="absolute inset-x-0 top-0 h-full flex justify-center items-center">
+      <div className="hidden md:flex absolute inset-x-0 top-0 h-full justify-center items-center">
         <Navbar />
+      </div>
+    );
+  };
+
+  const MobileMenu = () => {
+    const { user, logout } = useAuth();
+    const items = [
+      { to: "/dashboard", label: "Dashboard" },
+      { to: "/movies", label: "Filmes" },
+      { to: "/screenings", label: "Sessões" },
+      { to: "/theaters", label: "Salas" },
+      { to: "/tickets", label: "Ingressos" },
+      { to: "/snacks", label: "Alimentos" },
+      { to: "/admin", label: "Administração" },
+    ];
+
+    if (!user) return null;
+
+    return (
+      <div className="md:hidden">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" className="p-2 text-white">
+              <Menu />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <nav className="flex flex-col gap-3">
+              {items.map((it) => (
+                <Link key={it.to} to={it.to} className="text-base font-medium">
+                  {it.label}
+                </Link>
+              ))}
+
+              <hr className="my-2" />
+
+              <Link to="/profile" className="text-base font-medium">
+                Perfil
+              </Link>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  logout();
+                  window.location.href = "/login";
+                }}
+              >
+                Sair
+              </Button>
+            </nav>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   };
@@ -70,13 +123,17 @@ export default function App() {
           />
 
           <header className="bg-blue-700/60 shadow-md relative">
-            {/* Logotipo/Título à esquerda */}
-            <div className="absolute left-0 top-0 h-full flex items-center pl-4">
+            {/* Logotipo/Título à esquerda (mobile includes menu) */}
+            <div className="absolute left-0 top-0 h-full flex items-center pl-4 gap-3">
+              <div className="md:hidden">
+                <MobileMenu />
+              </div>
+
               <span
-                aria-hidden="true"
+                aria-hidden
                 className="inline-block w-1 h-6 bg-white/20 mr-3 rounded-sm"
               />
-              <span className="text-white font-bold text-lg sm:text-base">
+              <span className="text-white font-bold text-sm md:text-lg">
                 Cinemania - Administração dos Totens
               </span>
             </div>
@@ -93,7 +150,7 @@ export default function App() {
           </header>
 
           <main className="flex-1 py-10">
-            <Suspense fallback={<div>Carregando...</div>}>
+            <Suspense fallback={<div className="flex justify-center">Carregando...</div>}>
               <AppRoutes />
             </Suspense>
           </main>
