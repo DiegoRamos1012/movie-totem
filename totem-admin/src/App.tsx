@@ -131,7 +131,7 @@ export default function App() {
 
               <span
                 aria-hidden
-                className="inline-block w-1 h-6 bg-white/20 mr-3 rounded-sm"
+                className="inline-block w-1 h-6 bg-white/20 mr-1 rounded-sm"
               />
               <span className="text-white font-bold text-sm md:text-lg">
                 Cinemania - Administração dos Totens

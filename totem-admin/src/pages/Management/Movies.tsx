@@ -13,6 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/utils/formatters";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Plus, Search } from "lucide-react";
 
 function ratingLabel(r: MovieRating) {
   return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
@@ -97,46 +106,59 @@ export default function Movies() {
         <h1 className="text-2xl font-semibold">Gerenciamento de Filmes</h1>
         <Link
           to="/management/movies/new"
-          className="inline-block bg-blue-500 hover:bg-blue-600 transition-colors text-white px-4 py-2 rounded-md text-sm"
+          className="inline-flex items-center bg-blue-500 hover:bg-blue-600 transition-colors text-white px-4 py-2 rounded-md text-sm"
         >
-          Novo Filme
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar Filme
         </Link>
       </header>
 
       <section className="bg-card p-4 rounded-md shadow-sm space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <Input
-            aria-label="Buscar filmes"
-            placeholder="Buscar por título..."
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-            className="px-3 py-2 border rounded-md w-1/2"
-          />
-
-          <div className="flex items-center gap-2">
-            <Labe className="text-sm">Exibir</Labe>
-            <select
-              value={pageSize}
+          <div className="relative w-60">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 pointer-events-none"
+              aria-hidden="true"
+            />
+            <Input
+              className="pl-10 border rounded-md w-full"
+              aria-label="Buscar filmes"
+              placeholder="Buscar por título..."
+              value={query}
               onChange={(e) => {
-                setPageSize(Number(e.target.value));
+                setQuery(e.target.value);
                 setPage(1);
               }}
-              className="px-2 py-1 border rounded-md"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-sm">Exibir</Label>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(val) => {
+                setPageSize(Number(val));
+                setPage(1);
+              }}
             >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-            </select>
+              <SelectTrigger className="px-2 py-1 border rounded-md w-18">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="flex items-center">Imagem de Cartaz</TableHead>
+              <TableHead className="flex items-center">
+                Imagem de Cartaz
+              </TableHead>
               <TableHead>
                 <button
                   onClick={() => toggleSort("name")}
@@ -175,12 +197,7 @@ export default function Movies() {
                 </button>
               </TableHead>
               <TableHead className="">
-                <button
-                  onClick={() => toggleSort("duration")}
-                  className="flex items-center gap-2"
-                >
-                  Status{" "}
-                </button>
+                Status
               </TableHead>
 
               <TableHead className="w-50">Ações</TableHead>
@@ -232,17 +249,17 @@ export default function Movies() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
               Anterior
-            </button>
+            </Button>
 
             <div className="flex items-center gap-1">
               {Array.from({ length: totalPages }).map((_, i) => (
-                <button
+                <Button
                   key={i}
                   onClick={() => setPage(i + 1)}
                   className={`px-3 py-1 rounded ${
@@ -250,17 +267,17 @@ export default function Movies() {
                   }`}
                 >
                   {i + 1}
-                </button>
+                </Button>
               ))}
             </div>
 
-            <button
+            <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
               Próximo
-            </button>
+            </Button>
           </div>
         </div>
       </section>
