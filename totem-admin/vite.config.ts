@@ -18,7 +18,7 @@ try {
 function welcomePlugin() {
   const reactVersion = (React as typeof React)?.version ?? "unknown";
   const repoUrl = "https://github.com/DiegoRamos1012/movie-totem";
-  const linkText = "Repositório: movie-totem";
+  const linkText = "movie-totem";
   // OSC 8 hyperlink: funciona em terminais que suportam (VS Code, Windows Terminal, iTerm2...)
   const oscLink = `\u001B]8;;${repoUrl}\u0007${linkText}\u001B]8;;\u0007`;
 
@@ -30,7 +30,7 @@ Totem Admin - Ambiente de Desenvolvimento.
 - React v${reactVersion}
 - Tailwind v${tailwindVersion}
 - Rode "pnpm run dev" para executar o projeto
-- ${oscLink} (<-- link clicável em IDEs compatíveis)`;
+- Repositório: ${oscLink} (<-- link clicável em IDEs compatíveis)`;
 
 const msgPreview = `Preview do movie-totem
 vite v${viteVersion}

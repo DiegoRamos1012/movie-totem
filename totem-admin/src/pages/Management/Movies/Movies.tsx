@@ -284,7 +284,7 @@ export default function Movies() {
               disabled={currentPage === totalPages}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
-              próximo
+              Próximo
             </Button>
           </div>
         </div>
