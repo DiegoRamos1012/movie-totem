@@ -5,7 +5,7 @@ import Register from "@/pages/Register";
 import Profile from "@/pages/Management/Profile";
 
 const Dashboard = lazy(() => import("../pages/Dashboard"));
-const Movies = lazy(() => import("../pages/Management/Movies"));
+const Movies = lazy(() => import("../pages/Management/Movies/Movies"));
 const Screenings = lazy(() => import("../pages/Management/Screenings"));
 const Theaters = lazy(() => import("../pages/Management/Theaters"));
 const Tickets = lazy(() => import("../pages/Management/Tickets"));

@@ -22,6 +22,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Plus, Search } from "lucide-react";
+import ViewMovieDialog from "./ViewMovieDialog";
 
 function ratingLabel(r: MovieRating) {
   return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
@@ -43,6 +44,9 @@ export default function Movies() {
   const [pageSize, setPageSize] = useState(5);
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedMovie, setSelectedMovie] = useState<
+    (typeof mockMovies)[number] | null
+  >(null);
 
   const getValue = (
     m: (typeof mockMovies)[number],
@@ -102,6 +106,12 @@ export default function Movies() {
 
   return (
     <div className="p-5">
+      <ViewMovieDialog
+        open={!!selectedMovie}
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+      />
+
       <header className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Gerenciamento de Filmes</h1>
         <Link
@@ -220,6 +230,7 @@ export default function Movies() {
                 <TableCell>
                   <div className="flex gap-2">
                     <button
+                      onClick={() => setSelectedMovie(m)}
                       className="text-sm text-primary"
                     >
                       Ver
@@ -273,7 +284,7 @@ export default function Movies() {
               disabled={currentPage === totalPages}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
-              Próximo
+              próximo
             </Button>
           </div>
         </div>
