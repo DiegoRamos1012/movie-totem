@@ -21,7 +21,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash, Trash2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import ViewMovieDialog from "./ViewMovieDialog";
 
 function ratingLabel(r: MovieRating) {
@@ -229,21 +234,27 @@ export default function Movies() {
                 <TableCell>{MovieStatusLabel[m.movieStatus]}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <button
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => setSelectedMovie(m)}
+                          className="text-sm mr-3 text-muted"
+                          aria-label={`Ver detalhes do filme: ${m.name}`}
+                        >
+                          <Eye />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Ver detalhes do filme</TooltipContent>
+                    </Tooltip>
+                    <Button
                       onClick={() => setSelectedMovie(m)}
-                      className="text-sm text-primary"
+                      className="text-sm mr-3 text-muted"
                     >
-                      Ver
-                    </button>
-                    <Link
-                      to={`/management/movies/${m.id}/edit`}
-                      className="text-sm text-muted-foreground"
-                    >
-                      Editar
-                    </Link>
-                    <button className="text-sm text-destructive">
-                      Remover
-                    </button>
+                      <Pencil />
+                    </Button>
+                    <Button className="text-sm text-destructive">
+                      <Trash2 />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
