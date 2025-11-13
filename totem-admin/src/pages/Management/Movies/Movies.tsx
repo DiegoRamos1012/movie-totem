@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { formatDate } from "@/utils/formatters";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Select,
   SelectTrigger,
@@ -21,7 +22,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Eye, Pencil, EyeOff } from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -246,15 +247,26 @@ export default function Movies() {
                       </TooltipTrigger>
                       <TooltipContent>Ver detalhes do filme</TooltipContent>
                     </Tooltip>
-                    <Button
-                      onClick={() => setSelectedMovie(m)}
-                      className="text-sm mr-3 text-muted"
-                    >
-                      <Pencil />
-                    </Button>
-                    <Button className="text-sm text-destructive">
-                      <Trash2 />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => setSelectedMovie(m)}
+                          className="text-sm mr-3 text-muted"
+                          aria-label={`Editar detalhes do filme: ${m.name}`}
+                        >
+                          <Pencil />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Editar detalhes do filme</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button className="text-sm text-destructive">
+                          <EyeOff />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Desativar filme</TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
@@ -267,37 +279,13 @@ export default function Movies() {
             Mostrando {pageData.length} de {total} filmes
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Anterior
-            </Button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <Button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 rounded ${
-                    currentPage === i + 1 ? "bg-primary text-white" : "border"
-                  }`}
-                >
-                  {i + 1}
-                </Button>
-              ))}
-            </div>
-
-            <Button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Próximo
-            </Button>
-          </div>
+          <Pagination
+            total={total}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={(p: number) => setPage(p)}
+            className="ml-4"
+          />
         </div>
       </section>
     </div>
