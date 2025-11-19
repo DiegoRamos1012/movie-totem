@@ -10,6 +10,18 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  MovieGenres,
+  MovieGenresLabel,
+  MovieRating,
+} from "../../../../types/types";
 
 type Props = {
   open: boolean;
@@ -44,6 +56,22 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
     fileInputRef.current?.click();
   };
 
+  const clearForm = () => {
+    setName("");
+    setOriginalName("");
+    setGenre("");
+    setDuration("");
+    setRating("");
+    setReleaseDate("");
+    setMovieStatus("");
+    setActive(true);
+    setDirection("");
+    setCasting("");
+    setSynopsis("");
+    setPosterFile(null);
+    setPosterPreview(null);
+  };
+
   const handleSave = () => {
     // For now just log the form values. Integration with backend will be added later.
     console.log({
@@ -60,7 +88,7 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
       synopsis,
       posterFile,
     });
-    onClose();
+    clearForm();
   };
 
   return (
@@ -74,9 +102,9 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
 
         <div className="p-6 pt-2 flex flex-col md:flex-row gap-6">
           {/* Left: image upload placeholder */}
-          <div className="w-full md:w-80 flex items-center justify-center">
+          <div className="w-full md:w-79 flex items-center justify-center">
             <div
-              className="w-full max-w-xs md:max-w-full h-48 md:h-96 rounded-lg border-dashed border-2 border-border flex items-center justify-center overflow-hidden bg-card"
+              className="w-full max-w-xs md:max-w-full h-48 md:h-115 rounded-lg border-dashed border-border border-2 flex items-center justify-center overflow-hidden bg-card"
               onClick={handleUploadClick}
               role="button"
               aria-label="Enviar imagem do filme"
@@ -121,16 +149,28 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-sm">Gênero</Label>
-                <Input
+                <Select
                   value={genre}
-                  onChange={(e) => setGenre(e.target.value)}
-                />
+                  onValueChange={(val) => setGenre(val as MovieGenres)}
+                >
+                  <SelectTrigger className="w-full border rounded-md p-2 text-sm cursor-pointer">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(MovieGenres).map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {MovieGenresLabel[c as MovieGenres]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <Label className="text-sm">Duração (min)</Label>
                 <Input
                   type="number"
+                  inputMode="numeric"
                   value={String(duration)}
                   onChange={(e) =>
                     setDuration(
@@ -144,18 +184,27 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-sm">Classificação</Label>
-                <select
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
-                  className="w-full border rounded px-2 py-1"
-                >
-                  <option value="LIVRE">Livre</option>
-                  <option value="10">10+</option>
-                  <option value="12">12+</option>
-                  <option value="14">14+</option>
-                  <option value="16">16+</option>
-                  <option value="18">18+</option>
-                </select>
+                <Select value={rating} onValueChange={(val) => setRating(val)}>
+                  <SelectTrigger className="w-full border rounded px-2 py-1">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      "LIVRE",
+                      "DEZ",
+                      "DOZE",
+                      "QUATORZE",
+                      "DEZESSEIS",
+                      "DEZOITO",
+                    ].map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r === "LIVRE"
+                          ? "Livre"
+                          : `${MovieRating[r as keyof typeof MovieRating]}+`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
