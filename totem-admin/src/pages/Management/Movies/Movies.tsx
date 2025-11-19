@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { MovieRating, MovieStatusLabel } from "../../../../types/types";
 import { mockMovies } from "@/mockedData/mockedMovies";
@@ -29,6 +28,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import ViewMovieDialog from "./ViewMovieDialog";
+import AddMovieDialog from "./AddMovieDialog";
 
 function ratingLabel(r: MovieRating) {
   return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
@@ -45,6 +45,7 @@ type SortField =
   | null;
 
 export default function Movies() {
+  const [addOpen, setAddOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -117,16 +118,20 @@ export default function Movies() {
         movie={selectedMovie}
         onClose={() => setSelectedMovie(null)}
       />
+      <AddMovieDialog open={addOpen} onClose={() => setAddOpen(false)} />
 
       <header className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Gerenciamento de Filmes</h1>
-        <Link
-          to="/management/movies/new"
-          className="inline-flex items-center bg-blue-500 hover:bg-blue-600 transition-colors text-white px-4 py-2 rounded-md text-sm"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Filme
-        </Link>
+        <>
+          <Button
+            type="button"
+            onClick={() => setAddOpen(true)}
+            className="inline-flex items-center bg-primary hover:bg-blue-600 transition-colors text-white px-4 py-2 rounded-md text-sm"
+          >
+            <Plus className="h-4 w-4" />
+            Adicionar Filme
+          </Button>
+        </>
       </header>
 
       <section className="bg-card p-4 rounded-md shadow-sm space-y-4">
@@ -261,7 +266,7 @@ export default function Movies() {
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button className="text-sm text-destructive">
+                        <Button className="text-sm text-white bg-destructive hover:bg-destructive">
                           <EyeOff />
                         </Button>
                       </TooltipTrigger>
