@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { ptBR } from "date-fns/locale";
+import { parseDisplayToDate, formatDate } from "@/utils/formatters";
 import {
   MovieGenres,
   MovieGenresLabel,
@@ -35,7 +39,7 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
   const [originalName, setOriginalName] = useState("");
   const [genre, setGenre] = useState("");
   const [duration, setDuration] = useState<number | "">("");
-  const [rating, setRating] = useState<string>("LIVRE");
+  const [rating, setRating] = useState<string>("");
   const [releaseDate, setReleaseDate] = useState<string>("");
   const [movieStatus, setMovieStatus] = useState<string>("");
   const [active, setActive] = useState<boolean>(true);
@@ -44,6 +48,8 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
   const [synopsis, setSynopsis] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendarRef = useRef<HTMLDivElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
@@ -89,6 +95,24 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
       posterFile,
     });
     clearForm();
+  };
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!calendarRef.current) return;
+      if (!(e.target instanceof Node)) return;
+      if (!calendarRef.current.contains(e.target as Node)) {
+        setCalendarOpen(false);
+      }
+    }
+
+    if (calendarOpen) document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [calendarOpen]);
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatDate(e.target.value);
+    setReleaseDate(formatted);
   };
 
   return (
@@ -209,11 +233,37 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
 
               <div>
                 <Label className="text-sm">Lançamento</Label>
-                <Input
-                  type="date"
-                  value={releaseDate}
-                  onChange={(e) => setReleaseDate(e.target.value)}
-                />
+                <div className="relative" ref={calendarRef}>
+                  <Input
+                    value={releaseDate}
+                    onChange={handleDateInputChange}
+                    placeholder="DD/MM/AAAA"
+                  />
+
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => setCalendarOpen((s) => !s)}
+                    className="absolute right-0.5 top-1/2 -translate-y-1/2 p-1"
+                    aria-label="Abrir calendário"
+                  >
+                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+
+                  {calendarOpen && (
+                    <div className="absolute right-0 mt-2 z-50 rounded-lg shadow-lg bg-card p-2">
+                      <Calendar
+                        mode="single"
+                        locale={ptBR}
+                        selected={parseDisplayToDate(releaseDate)}
+                        onSelect={(date) => {
+                          if (!date) return;
+                          setReleaseDate(formatDate(date));
+                          setCalendarOpen(false);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
