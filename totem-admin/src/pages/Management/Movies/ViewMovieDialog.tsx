@@ -8,21 +8,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDate } from "@/utils/formatters";
-import {
-  type Movie,
-  MovieRating,
-  MovieStatusLabel,
-} from "../../../../types/types";
+import { MovieStatusLabel, ratingLabel } from "../../../../types/enums";
+import type { Movie } from "../../../../types/types";
 
 type ViewMovieDialogProps = {
   open: boolean;
   movie?: Movie | null;
   onClose?: () => void;
 };
-
-function ratingLabel(r: MovieRating) {
-  return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
-}
 
 export default function ViewMovieDialog({
   open,
@@ -88,9 +81,7 @@ export default function ViewMovieDialog({
                 <ScrollArea className="h-48 md:h-72 rounded-lg border p-4">
                   <h3 className="font-semibold mb-2">Sinopse</h3>
                   <div className="text-sm text-muted-foreground wrap-break-word whitespace-normal hyphens-auto">
-                    <span lang="pt">
-                      {movie.synopsis}
-                    </span>
+                    <span lang="pt">{movie.synopsis}</span>
                   </div>
                 </ScrollArea>
               </div>

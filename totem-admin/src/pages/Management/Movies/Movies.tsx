@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MovieRating, MovieStatusLabel } from "../../../../types/types";
+import { MovieStatusLabel, ratingLabel } from "../../../../types/enums";
 import { mockMovies } from "@/mockedData/mockedMovies";
 import {
   Table,
@@ -29,10 +29,6 @@ import {
 } from "@/components/ui/tooltip";
 import ViewMovieDialog from "./ViewMovieDialog";
 import AddMovieDialog from "./AddMovieDialog";
-
-function ratingLabel(r: MovieRating) {
-  return r === MovieRating.LIVRE ? "Livre" : `${r}+`;
-}
 
 type SortField =
   | "name"

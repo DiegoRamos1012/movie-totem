@@ -20,12 +20,16 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { ptBR } from "date-fns/locale";
-import { parseDisplayToDate, formatDate } from "@/utils/formatters";
+import {
+  parseDisplayToDate,
+  formatDate,
+  formatDigitsToDisplay,
+} from "@/utils/formatters";
 import {
   MovieGenres,
   MovieGenresLabel,
   MovieRating,
-} from "../../../../types/types";
+} from "../../../../types/enums";
 
 type Props = {
   open: boolean;
@@ -111,8 +115,8 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
   }, [calendarOpen]);
 
   const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatDate(e.target.value);
-    setReleaseDate(formatted);
+    // formata enquanto digita: "dd/MM/yyyy"
+    setReleaseDate(formatDigitsToDisplay(e.target.value));
   };
 
   return (
@@ -213,18 +217,13 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[
-                      "LIVRE",
-                      "DEZ",
-                      "DOZE",
-                      "QUATORZE",
-                      "DEZESSEIS",
-                      "DEZOITO",
-                    ].map((r) => (
+                    {(
+                      Object.keys(MovieRating) as Array<
+                        keyof typeof MovieRating
+                      >
+                    ).map((r) => (
                       <SelectItem key={r} value={r}>
-                        {r === "LIVRE"
-                          ? "Livre"
-                          : `${MovieRating[r as keyof typeof MovieRating]}+`}
+                        {r === "LIVRE" ? "Livre" : MovieRating[r]}
                       </SelectItem>
                     ))}
                   </SelectContent>

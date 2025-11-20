@@ -1,4 +1,5 @@
-import { MovieRating, MovieStatus, type Movie } from "../../types/types";
+import { MovieRating, MovieStatus } from "../../types/enums";
+import type { Movie } from "../../types/types";
 
 export const mockMovies: Movie[] = [
   {

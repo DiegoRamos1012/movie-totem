@@ -1,28 +1,16 @@
+import { format, parse, isValid } from "date-fns";
+
+export const date = new Date();
+
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
-  if (isNaN(d.getTime())) return ""; // retorna vazio se a data for inválida
-
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-
-  return `${day}/${month}/${year}`;
+  if (!isValid(d)) return ""; 
+  return format(d, "dd/MM/yyyy");
 }
 
 export function parseDisplayToDate(display: string): Date | undefined {
-  const m = display.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!m) return undefined;
-  const day = Number(m[1]);
-  const month = Number(m[2]);
-  const year = Number(m[3]);
-  const date = new Date(year, month - 1, day);
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day
-  )
-    return undefined;
-  return date;
+  const d = parse(display, "dd/MM/yyyy", new Date());
+  return isValid(d) ? d : undefined;
 }
 
 export function formatDigitsToDisplay(digits: string): string {
