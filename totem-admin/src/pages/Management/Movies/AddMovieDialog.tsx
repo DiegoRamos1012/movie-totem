@@ -42,7 +42,7 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
   const [name, setName] = useState("");
   const [originalName, setOriginalName] = useState("");
   const [genre, setGenre] = useState("");
-  const [duration, setDuration] = useState<number | "">("");
+  const [duration, setDuration] = useState<number | null>(null);
   const [rating, setRating] = useState<string>("");
   const [releaseDate, setReleaseDate] = useState<string>("");
   const [movieStatus, setMovieStatus] = useState<string>("");
@@ -66,11 +66,20 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
     fileInputRef.current?.click();
   };
 
+  /*  const checkReleaseValid = (): boolean => {
+    if (!releaseDate) return false;
+    const parsed = parseDisplayToDate(releaseDate);
+    if (!parsed) return false;
+    // Considera futura se for estritamente posterior ao início do dia atual
+    return parsed.getTime() > startOfDay(new Date()).getTime();
+  };
+ */
+
   const clearForm = () => {
     setName("");
     setOriginalName("");
     setGenre("");
-    setDuration("");
+    setDuration(null);
     setRating("");
     setReleaseDate("");
     setMovieStatus("");
@@ -115,7 +124,6 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
   }, [calendarOpen]);
 
   const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // formata enquanto digita: "dd/MM/yyyy"
     setReleaseDate(formatDigitsToDisplay(e.target.value));
   };
 
@@ -197,12 +205,11 @@ const AddMovieDialog: React.FC<Props> = ({ open, onClose }) => {
               <div>
                 <Label className="text-sm">Duração (min)</Label>
                 <Input
-                  type="number"
                   inputMode="numeric"
-                  value={String(duration)}
+                  value={duration === null ? "" : String(duration)}
                   onChange={(e) =>
                     setDuration(
-                      e.target.value === "" ? "" : Number(e.target.value)
+                      e.target.value === "" ? null : Number(e.target.value)
                     )
                   }
                 />
